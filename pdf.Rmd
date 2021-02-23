@@ -2,7 +2,9 @@
 title: "Tarea 1"
 author: "Mayra Samantha Cervantes Bravo"
 date: "18/2/2021"
-output: pdf_document
+output:
+  pdf_document: 
+    latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE,results='asis'}
@@ -119,6 +121,15 @@ knitr::kable(st2,format="latex",caption="Estimador de Neyman")
 
 ```
 
+
+ols errores hetero: $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
+
+ols con controles: $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+\beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
+
+
+probit: $Pr(Y=1 \mid X) = \Phi(X'\beta)$, donde $X'\beta= \beta_{0}+ \beta_{1} Black_i$
+
+
 ```{r,results='asis', message=FALSE,header=FALSE}
 
 a1<-lm(call_back ~ black, data = nam)
@@ -147,4 +158,4 @@ stargazer(a1,b1,f1, title="Modelos discriminación racial",
 ```
 
 
-
+hhhh
