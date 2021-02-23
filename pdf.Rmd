@@ -687,31 +687,14 @@ kable(df.tidy,digits=3,booktabs=T,col.names=c("Requisitos","Media","Sd","Efecto 
 
 ### Pregunta 7 
 
-Planteamos una especificación para buscar evidencia de que la discriminación tiene rendimientos decrecientes respecto a la experiencia. 
+Planteamos una especificación para buscar evidencia de que la discriminación tiene rendimientos decrecientes respecto a la experiencia (*yearsexp*):
 
-$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+ \beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} YearsExp_i+\beta_{3} YearsExp_{i}^2 + \beta_{4} (YearsExp_i*Black_i) + \beta_{5} (YearsExp_i*Black_i)^2 + u_{i}$
 
-
-
-Esta además incluye interacciones de *black* con las otras variables. 
-main effect of variable X1: x1+x1^2
-main effect of variable X2: x2
-interaction effect of variables X1 and X2: (X1+X21):X2
-
-The short answer is that by not including certain terms 
-in the model, you force parts of it to be exactly zero. This imposes an inflexibility to your model that necessarily causes bias, unless those parameters are exactly zero in reality; the situation is analogous to suppressing the intercept (which you can see discussed here).
-https://stats.stackexchange.com/questions/51985/interactions-terms-and-higher-order-polynomials
-
-So if your hypothesis is that the effect of motives is modified by income, and in particular that this peaks in the middle range, you need to interact motives with both income and income^2
-
-Interaction with only the linear term would not model a peaking of the interaction in the middle of the income range, and interaction with the quadratic term alone would force the peak effect to be seen at income = 0. So you must include both the linear and quadratic terms in the interaction to model what you are seeking.
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
-years2=yearsexp*yearsexp
-d.1<-lm(call_back ~ (yearsexp + years2)*black, data = nam)
 d.3<-lm(call_back ~ black + yearsexp + I(yearsexp^2)+I(black*yearsexp)+I(black*yearsexp^2), data = nam)
-
 
 stargazer(d.3, title="Experiencia y raza en Call-backs",
           type="text",
@@ -719,26 +702,19 @@ stargazer(d.3, title="Experiencia y raza en Call-backs",
           header=FALSE,
           column.sep.width = "2pt", 
           font.size = "small")
-          
 
 ```
+Podemos observar que para el grupo base (blancos) los años de experiencia tienen un rendimiento decreciente en la probabilidad de que les hagan *call-back*, mientras que con las personas afroamericanas tiene rendimientos crecientes pero no significativos. Se ilustra en la siguiente gráfica:
 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
-#black como binaroia
-d.1factor<-lm(call_back ~ (yearsexp + years2)*as.factor(black), data = nam)
-
-mydf <- ggpredict(d.1factor, terms = c("black","yearsexp","years2"))
-plot(mydf)
-
-```
-
-```{r,results='asis', message=FALSE,header=FALSE}
+years2=yearsexp*yearsexp
 
 #plot de los efectos, black como factor (en la regresión es indiferente pero en los plots no)
-d.34factor<-lm(call_back ~ (yearsexp + yearsexp*yearsexp)*as.factor(black), data = nam)
-mydf <- ggpredict(d.34factor, terms = c("black","yearsexp"))
+
+d.34factor<-lm(call_back ~ (yearsexp + yearsexp2)*as.factor(black), data = nam)
+mydf <- ggpredict(d.34factor, terms = c("black","yearsexp","years2"))
 plot(mydf)
 
 ```
@@ -749,17 +725,20 @@ plot(mydf)
 
 Con las siguientes características:
 
-(i) tu anticipas que los efectos (varianza y efecto real) sean iguales a los obtenidos por Bertrand y Mullainathan, 
-(ii) quieres un poder estadístico de 85%, 
-(iii) asumes una significancia de 1%, y 
-(iv) vas a dividir 50-50 tratamiento y control?
-
+(i) Efecto real: .0320, varianza: 0.00006 
+(ii) Poder estadístico: 85%, 
+(iii) Significancia: 1%, y 
+(iv) División 50-50 tratamiento y control
+(v) Proporción de blancos que reciben call-back: .0965 
+(vi) Proporción de afro-americanos que reciben call-back: 0.06447639
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
 SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 
 ```
+Obtenemos una N de 3760. 
+
 ### b) Trade-off poder estadístico y proporción tratamiento y control {-}
 
 
