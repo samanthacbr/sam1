@@ -37,26 +37,21 @@ library(EnvStats)
 
 nam<-read_dta("Names.dta")
 attach(nam)
+options(knitr.table.format = "latex")
 ```
 
 ### Pregunta 1
 
-La aleatorización de los nombres es relevante para el experimento  debido a que de esta forma se puede asegurar al *ceteris paribus* y así medir el "efecto puro" de la discriminación: al ser individuos "idénticos" (en sus CVs), la asignación aleatoria de nombres asegura que lo que se busca medir no esté contaminado por otros "confusores": mostrar que la decisión de hacer call-back o no no pudo ser por otras razones relacionadas a características personales de los aplicantes, ya que esta fue aleatoria. Así, si los dos grupos están "balanceados" se puede medir el efecto puro de la discriminación.
+La aleatorización de los nombres es relevante para el experimento  debido a que de esta forma se puede asegurar al *ceteris paribus* y así medir el "efecto puro" de la discriminación: al ser individuos "idénticos" (en sus CVs), la asignación aleatoria de nombres asegura que lo que se busca medir no esté contaminado por otros "confusores", o desbalance de las variables explicativas. Así, se muestra que la decisión de hacer *call-back* no pudo ser por razones relacionadas a características personales de los aplicantes, ya que esta fue aleatoria. Así, si los dos grupos están "balanceados" se puede medir el efecto puro de la discriminación (decisión por cómo suena el nombre), ya que se elimina el sesgo por ser diferentes desde un principio. 
 
-Que el único diferenciador fuera por cómo "suena" el nombre
-también así se puede asegurar que los 2 grupos son balanceados
-Como dicen en el paper, así se puede asegurar que son similares desde la perscpectiva del empleador, lo cual, de no ser así, estas diferencias son por estos factores no observados
+Si hubieran usado información de postulantes verdaderos, no se podría asegurar que los CVs serían similares desde la perspectiva del empleador, y la decisión podría ser por las diferentes características de los grupos en las variables explicativas, por ejemplo, medias diferentes en años de educación en blancos y afro-americanos. Si este caso hipotético fuera cierto, no se podría distinguir si la decisión fue por estos factores o por discriminación: de ahí la importancia de la aleatoriedad y el balance.  
 
-Si hubieran usado información de postulantes verdaderos, es posible que los CVS (o Xi's) hubieran tenido medias diferentes, lo cual podría explicar las diferencias en los call backs, por ejemplo años o calidad de educación.
-
-Se hubiera subestimado el coeficiente de *black* en los *call-backs*, ya que esta tiene correlación con las otras variables explicativas, entonces, por ejemplo, si ser afro-americano está relacionado con otras variables que tienen relación con la Y, como años o calidad de educación, estas al ser visibles en el cv le quitarían fuerza a *black*
-
-Se elimina el sesgo de ser diferente desde el principio. 
+De haber seguido esa estrategia, su coeficiente de *black* estaría sesgado por variables omitidas, por lo explicado anteriormente. Variables que están corelacionadas con ser afro-americano o blanco, que también están relacionadas con la probabilidad de recibir *call-back* (como años de educación) hubieran generado un sesgo positivo, inflando su coeficiente.
 
 ### Pregunta 2
 
 
-Primero se generó una tabla de estadísticas descriptivas (media y desviación estándar) de las variables principales de interés, las de características de los individuos en los CVs. En esta, las columnas relevantes para ver que se aleatorizó correctamente son la 2° y la 3°, que indican a los individuos con nombres blancos y afroamericanos. Podemos notar que las medias son las mismas en ambas columnas, lo que implica que no se "favoreció" a un grupo en particular: aquí se verifica el balance. Si las proporciones no fueran iguales, y un grupo tuviera "más" o "menos" de cierta característica, ya no podríamos asegurar que el efecto de discriminar meramente por los nombres no está influido por algo más que la aleatorización.
+Primero se generó una tabla de estadísticas descriptivas (media y desviación estándar) de las  características de los individuos en los CVs. En esta, las columnas relevantes para ver que se aleatorizó correctamente son la 2° y la 3°, que indican a los individuos con nombres blancos y afroamericanos. Podemos notar que las medias son las mismas en ambas columnas, lo que implica que no se "favoreció" a un grupo en particular: aquí se verifica el balance. Si las proporciones no fueran iguales, y un grupo tuviera "más" o "menos" de cierta característica, ya no podríamos asegurar que el efecto de discriminar está meramente por los nombres. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -75,11 +70,11 @@ whole1 <-summary_table(nam,our_sum)
 whole2<- summary_table(nam, summaries=our_sum, by=c("black","high"))
 both<-cbind(whole1,whole2)
 
-knitr::kable(both,caption="Estadísticas descriptivas",col.names=c("Total","Blancos","Afro-am.","Baja calidad","Alta calidad")) 
+knitr::kable(both,caption="Estadísticas descriptivas",col.names=c("Total","Blancos","Afro-am.","Baja calidad","Alta calidad",booktabs=T)) %>%
+  kable_styling(position = "center")
 
 ```
-
-Otra forma de verificar esto es con una tabla de balance. En esta se busca no rechazar
+Otra forma de verificar esto es con una tabla de balance. En esta se busca no rechazar, o que las diferencias de medias no sean estadísticamente diferentes de cero. Esto se cumple para todas las variables menos *computer skills*, que tiene un *p-value* de .03; no es significativa al .01 pero sí al .05.
 
 ```{r, results='asis', message=FALSE,header=FALSE}
 variables23<-data.frame(college,yearsexp,military,email,empholes,honors,
@@ -95,43 +90,58 @@ stargazer(as.data.frame(tabla23),type="latex",summary=FALSE,digits=2,title="Tabl
 
 ### a) Pruebas de hipótesis {-}
 
-En todas las pruebas la variable dependiente es la probabilidad de recibir call-back, representada en una variable dicotómica donde 1 es que la recibe y 0 que no. En los modelos univariados black es la variable independiente, donde 1 es indicador de ser afro-americano y 0 de ser blanco. 
-
-1. MCO (estimador de Neyman)
-
-$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
-
-2. MCO con errores heterocedásticos: 
-
-$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
-
-3. MCO  con controles: 
+La variable dependiente de los modelos es la probabilidad de recibir call-back, representada en una variable dicotómica donde 1 es que la recibe y 0 que no. En los modelos univariados black es la variable independiente, donde 1 es indicador de ser afro-americano y 0 de ser blanco. Todas las regresiones excepto la primera tienen errores heterocedásticos. Se busca encontrar si hay discriminación en contra de la población afroamericana. 
 
 
-$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+\beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
+1. MCO (estimador de Neyman):
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$,
+
+donde
+
+$H_{0}: \tau = 0 $ vs $H_{1}: \tau < 0 $ (donde $\tau$ representa a la diferencia de medias de tratamiento y control, representada por $\beta_{Black}$
+
+2. MCO : 
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$,
+
+donde
+
+$H_{0}: \beta_{1} = 0 $ vs $H_{1}: \beta_{1} < 0$
+
+3. MCO donde los controles son la dummy *female*, donde 1 es ser mujer; la interacción *female* con *black*; *high*, dummy donde 1 es que el CV es de calidad alta, y la interacción de CVs de alta calidad y de *black*:
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+ \beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$,
+
+donde
+
+$H_{0}: \beta_{1} =\beta_{3} = \beta_{5} = 0 $ vs $H_{1}: *eoc*$
+
+4. Probit sin controles:
+
+$Pr(Y=1 \mid X) = \Phi(X'\beta)$$, donde $$ X'\beta= \beta_{0} \beta_{1} Black_i$, 
+
+donde
+
+$H_{0}: \beta_{1} Black_i = 0 $ vs $H_{1}: \beta_{1} Black_i < 0$
 
 
-probit: $Pr(Y=1 \mid X) = \Phi(X'\beta)$, donde $X'\beta= \beta_{0}+ \beta_{1} Black_i$
 
+### b) Resultados {-}
 
-Estimador de Neyman
+Antes de presentar la tabla de resultados, mostramos por separado al estimador de Neyman:
 
 ```{r,results='asis', message=FALSE,header=FALSE,include=FALSE}
+#esto es para obtener estimadores, pero lo omitimos
 stat.test<-nam %>% t_test(call_back ~ black, detailed = TRUE)
 
 st<-as.data.frame(stat.test)
 attach(st)
 
-stargazer(stat.test, title="Modelos discriminación racial",
-          type="latex",
-          header=FALSE,
-          column.sep.width = "2pt", 
-          font.size = "small")
-
 ```
-sdadk
 
 ```{r,results='asis', message=FALSE,header=FALSE}
+#aquí convertimos el resultado del t-test a data frame, lo transponemos y cambiamos formato
 st1 <- st %>% dplyr::select(estimate, estimate1,estimate2,n1,statistic,p) %>% tibble::rownames_to_column()%>%
   pivot_longer(-rowname) %>% pivot_wider(names_from=rowname,values_from=value)
 
@@ -140,10 +150,10 @@ rownames(st1)<-c("Valor absoluto Diferencia","P(call_back|black=0)","P(call_back
 View(st1)
 st2<- subset(st1,select=-c(name))
 View(st2)
-knitr::kable(st2,format="latex",caption="Estimador de Neyman")
+knitr::kable(st2,format="latex",caption="Estimador de Neyman",booktabs=T) %>% kable_styling(position="center")
 
 ```
-
+El estimador se incorpora en la tabla de resultados en la primera columna, ya que el coeficiente de $\beta_{1} Black_i$ es equivalente a $\tau$, y sus varianzas son iguales. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -154,16 +164,13 @@ summary(a1)
 cov1<-coeftest(a1, vcov = vcovHC(a1, type="HC3"))
 robust_se <- sqrt(diag(cov1))
 
-b1<-lm(call_back ~ black + female + chicago + I(female*black) + high + I(high*black), data = nam)
+b1<-lm(call_back ~ black + female + I(female*black) + high + I(high*black), data = nam)
 cov2<-coeftest(b1, vcov = vcovHC(b1, type="HC3"))
 robust_se2 <- sqrt(diag(cov2))
 
 f1 <- glm(call_back ~ black,  family = binomial(link = "probit"),  data = nam)
 cov3<-coeftest(f1, vcov = vcovHC(f1, type="HC3"))
 robust_se3 <- sqrt(diag(cov3))
-
-nam$prob_pred<-predict.glm(f1,type="response")
-attach(nam)
 
 stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
           type="latex",
@@ -172,13 +179,19 @@ stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
           font.size = "small",se=list(NULL,robust_se,robust_se2,robust_se3))
 ```
 
-(d) Elige una de las columnas para llevar a cabo una interpretación del coeficiente relevante que estas estimando. Da evidencia como parte de esta interpretación de la importancia del efecto. Es decir, consideras que es un efecto pequeño o grande?
+### d) Interpretación {-} 
 
-Si observamos la columna 1 y 3, que son los modelos univariados, en ambas el coeficiente de *black* es significativo al .01 y con signo negativo. En el caso de MCO (1), podríamos interpretarlo como "Ceteris paribus, en promedio, los afro-americanos tienen 3.2 puntos porcentuales menos probabilidad de recibir un "call-back" que la gente blanca. 
+Si observamos la columna 1 y 3, que son los modelos univariados, en ambas el coeficiente de *black* es significativo al .01 y con signo negativo. En el caso de MCO (1), podríamos interpretarlo como "Ceteris paribus, en promedio, los afro-americanos tienen 3.2 puntos porcentuales menos de probabilidad de recibir un "call-back" que la gente blanca".
 
-Sin embargo, si observamos la columna 2, o el MPL multivariado, observamos que al agregar controles *black* pierde significancia.
+Sin embargo, si observamos la columna 2, o el MPL multivariado, observamos que al agregar controles *black* pierde significancia, mas mantiene su signo. 
 
 ### Pregunta 4
+
+Se evalúa la prueba de hipótesis: 
+
+$H_{o}: CallBack_{blancos}=CallBack_{afroam} + .01$,
+
+Con una *Fisher Exact Test*, que es una prueba de permutaciones:  
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -189,84 +202,34 @@ nam$yt01<- nam$prob_pred-.01
 
 attach(nam)
 
-#checar si lo de paired true está bien
-perm.test(DV ~ IV, paired=TRUE, alternative="two.sided",all.perms = TRUE, 
-          num.sim = 20000)$p.value
-
-```
-
-```{r,results='asis', message=FALSE,header=FALSE}
-
-#1
-DV <- c(nam$yt01, nam$yc01)
-IV <- factor(rep(c("T", "C"), c(length(nam$yt01), length(nam$yc01))))
-pvalue(oneway_test(DV ~ IV, alternative="two.sided", 
-                   distribution=approximate(B=9999)))
-
-```
-
-```{r,results='asis', message=FALSE,header=FALSE}
-
-B <- 99999
-dee <- nam$yt01-nam$yc01
-m0 <- mean(dee)
-
-# perform a one-sample randomization test on d
-# for the null hypothesis H0: mu_d = 0   vs H1 mu_d != 0  (i.e. two tailed)
-# here the test statistic is the mean
-rndmdist <- replicate(B,mean((rbinom(length(dee),1,.5)*2-1)*dee))
-
-# two tailed p-value:
-sum( abs(rndmdist) >= abs(m0))/length(rndmdist)
-
-```
-
-```{r,results='asis', message=FALSE,header=FALSE}
-
-B <- 99999
-dee <- nam$yt01-nam$yc01
-m0 <- mean(dee)
-
-# perform a one-sample randomization test on d
-# for the null hypothesis H0: mu_d = 0   vs H1 mu_d != 0  (i.e. two tailed)
-# here the test statistic is the mean
-rndmdist <- replicate(B,mean((rbinom(length(dee),1,.5)*2-1)*dee))
-
-# two tailed p-value:
-sum( abs(rndmdist) >= abs(m0))/length(rndmdist)
-
-```
-
-```{r,results='asis', message=FALSE,header=FALSE}
-
 x<-call_back[black==1]
 y<-call_back[black==0]
 twoSamplePermutationTestLocation(x, y,
                                  alternative="two.sided",seed = 123)
 
 ```
-valor p igual a cero
 
-Ho implica que todos los individuos el tratamiento no tiene efecto,
-en este caso sería exactamente igual a la probabilidad de ser negro más 1 pp
-(o que la probabilidad de call back si eres negro es 1 pp menor)
-esto implicaría que el efecto de tratamiento es constante: el mismo para 
-todos los individuos. La probabilidad de tener call back siendo blanco es la
-misma de ser negro + 1pp. Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de CB de los blancos sea 1pp mayor que la de todos los individuos afro-americanos. Arturo: estoy evaluando si el efecto constante del tratamiento es  igual a 1 pp 
+El valor- p igual a cero (reportado como 0). Ho implica que la probabilidad de recibir call-back siendo blanco es mayor a la de los afro-americanos en exactamente 1 pp. Se evalúa si el efecto de tratamiento es constante e igual a 1 pp . Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de CB de los blancos sea 1pp mayor que la de todos los individuos afro-americanos.
 
 ### Pregunta 5
 
-Estraificación por
-sexo
-cd
-industria
-Empleando todas las combinaciones posibles de las variables (i)-(iii),
-utiliza el metodo de Neyman para calcular el efecto de discrminacion en cada estrato
-(elige el formato que quieras para reportar este resultado, tabla o graca). Utilizando
-los efectos por estrato, calcula el efecto promedio de tratamiento. Compara
-este estimador promedio y la varianza con el resultado que obtuviste en la pregunta
-(3).
+Estratificamos por las siguientes variables:
+- Sexo
+ - Femenino
+ - Masculino
+- Ciudad 
+ - Chicago
+ - Bostom 
+- Industria
+    - Manufacturera
+    - Transportes o comunicaciones
+    - Finanzas, seguros o inmobiliaria
+    - Comercio
+    - Servicios personales
+    - Servicios sociales
+    - Otros
 
+Obteniendo 28 combinaciones diferentes. Se presenta el efecto de discriminación por estrato, el efecto promedio de tratamiento, y este comparado con el estimador de Neyman sin estratificar. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -599,16 +562,11 @@ wt28 <- nam %>%
   filter(s == 28 ) %$%
   nrow(.)/obs
 
-sum(wt1,wt2,wt3,wt4,wt5,wt6,wt7,wt8,wt9,wt10,wt11,wt12,wt13,wt14,
-    wt15,wt16,wt17,wt18,wt19,wt20,wt21,wt22,wt23,wt24,wt25,wt26,wt27, wt28)
-
-
 wate = diff1*wt1 + diff2*wt2 + diff3*wt3 + diff4*wt4+ diff5*wt5 + diff6*wt6 + diff7*wt7 + diff8*wt8+
   diff9*wt9 + diff10*wt10 + diff11*wt11 + diff12*wt12+ diff13*wt13 + diff14*wt14 + diff15*wt15 + 
   diff16*wt16+ diff17*wt17 + diff18*wt18 + diff19*wt19 + diff20*wt20+ diff21*wt21 + diff22*wt22 + diff23*wt23 + 
   diff24*wt24+  diff25*wt25 + diff26*wt26 + diff27*wt27+diff28*wt28
 
-# 
 Diferencias<-c(diff1,diff2,diff3,diff4,diff5,diff6,diff7,diff8,diff9,diff10,diff11,diff12,diff13,
                diff14,diff15,diff16,diff17,diff18,diff19,diff20,diff21,diff22,diff23,
                diff24,diff25,diff26,diff27,diff28 )
@@ -622,11 +580,20 @@ Estrato<-c("Hombre/Boston/Manufacturera","Hombre/Boston/Transporte o comunicacio
 df<-data.frame(Estrato, Diferencias, stringsAsFactors=TRUE)
 kable(df, booktabs=T,digits=4,col.names = c("Estrato","Diferencia Probabilidad de call-back entre Afroamericanos y Blancos")) %>% kable_styling(position = "center")
 
-stargazer(wate, gate, type = "text")
-
 ```
 
+```{r,results='asis', message=FALSE,header=FALSE}
+## falta
+stargazer(wate, gate, type = "text")
+```
+
+
 ### Pregunta 6
+
+En esta sección obtenemos la media y desviación estándar de las variables de la tabla 7, y las adjuntamos a los efectos marginales de su interacción con black, cada una obtenida de una especificación de un probit diferente.
+
+*Nota: los efectos marginales y sus varianzas se pegaron a mano en la tabla, mas están los comandos de cómo se obtuvo todo y su impresión respectiva.* 
+
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -713,12 +680,87 @@ df.tidy$marg.eff=marg.eff
 df.tidy$marg.sd=marg.sd
 
 df.tidy<-df.tidy[,c(3,1,2,4,5)]
-kable(df.tidy,digits=3,col.names=c("Requisitos","Media","Sd","Efecto marginal","Sd efecto marginal"),
+kable(df.tidy,digits=3,booktabs=T,col.names=c("Requisitos","Media","Sd","Efecto marginal","Sd efecto marginal"),
                         rtitle="Tabla 7. Efecto de requisitos en call-backs diferenciados por raza") %>% kable_styling(position = "center")
 
 ```
 
 ### Pregunta 7 
+
+Planteamos una especificación para buscar evidencia de que la discriminación tiene rendimientos decrecientes respecto a la experiencia. 
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+ \beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
+
+
+
+Esta además incluye interacciones de *black* con las otras variables. 
+main effect of variable X1: x1+x1^2
+main effect of variable X2: x2
+interaction effect of variables X1 and X2: (X1+X21):X2
+
+The short answer is that by not including certain terms 
+in the model, you force parts of it to be exactly zero. This imposes an inflexibility to your model that necessarily causes bias, unless those parameters are exactly zero in reality; the situation is analogous to suppressing the intercept (which you can see discussed here).
+https://stats.stackexchange.com/questions/51985/interactions-terms-and-higher-order-polynomials
+
+So if your hypothesis is that the effect of motives is modified by income, and in particular that this peaks in the middle range, you need to interact motives with both income and income^2
+
+Interaction with only the linear term would not model a peaking of the interaction in the middle of the income range, and interaction with the quadratic term alone would force the peak effect to be seen at income = 0. So you must include both the linear and quadratic terms in the interaction to model what you are seeking.
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+years2=yearsexp*yearsexp
+d.1<-lm(call_back ~ (yearsexp + years2)*black, data = nam)
+d.3<-lm(call_back ~ black + yearsexp + I(yearsexp^2)+I(black*yearsexp)+I(black*yearsexp^2), data = nam)
+
+
+stargazer(d.3, title="Experiencia y raza en Call-backs",
+          type="text",
+          column.labels = c("MPL"),
+          header=FALSE,
+          column.sep.width = "2pt", 
+          font.size = "small")
+          
+
+```
+
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+#black como binaroia
+d.1factor<-lm(call_back ~ (yearsexp + years2)*as.factor(black), data = nam)
+
+mydf <- ggpredict(d.1factor, terms = c("black","yearsexp","years2"))
+plot(mydf)
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+#plot de los efectos, black como factor (en la regresión es indiferente pero en los plots no)
+d.34factor<-lm(call_back ~ (yearsexp + yearsexp*yearsexp)*as.factor(black), data = nam)
+mydf <- ggpredict(d.34factor, terms = c("black","yearsexp"))
+plot(mydf)
+
+```
+
+### Pregunta 8
+
+### a) Calcular tamaño de la muestra {-}
+
+Con las siguientes características:
+
+(i) tu anticipas que los efectos (varianza y efecto real) sean iguales a los obtenidos por Bertrand y Mullainathan, 
+(ii) quieres un poder estadístico de 85%, 
+(iii) asumes una significancia de 1%, y 
+(iv) vas a dividir 50-50 tratamiento y control?
+
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
+
+```
+### b) Trade-off poder estadístico y proporción tratamiento y control {-}
 
 
 
