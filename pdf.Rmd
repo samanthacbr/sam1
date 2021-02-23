@@ -1,0 +1,150 @@
+---
+title: "Tarea 1"
+author: "Mayra Samantha Cervantes Bravo"
+date: "18/2/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE,results='asis'}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = 'H')
+library(haven)
+library(qwraps2)
+library(summarytools)
+library(devtools)
+library(knitr)
+library(dplyr)
+library(stargazer)
+library(lmtest)
+library(sandwich)
+library(devtools)
+library(fansi)
+library(RCT)
+library(rstatix)
+library(data.table)
+library(mfx)
+library(perm)
+library(coin)  
+library(magrittr)
+library(exactRankTests)
+library(powerMediation)
+library(tidyverse)
+library(ggeffects)
+library(ggplot2)
+
+nam<-read_dta("Names.dta")
+attach(nam)
+```
+
+### Pregunta 1
+
+La aleatorización de los nombres es relevante para el experimento  debido a que de esta forma se puede asegurar al *ceteris paribus* y así medir el "efecto puro" de la discriminación: al ser individuos "idénticos" (en sus CVs), la asignación aleatoria de nombres asegura que lo que se busca medir no esté contaminado por otros "confusores": mostrar que la decisión de hacer call-back o no no pudo ser por otras razones relacionadas a características personales de los aplicantes, ya que esta fue aleatoria. Así, si los dos grupos están "balanceados" se puede medir el efecto puro de la discriminación.
+
+Que el único diferenciador fuera por cómo "suena" el nombre
+también así se puede asegurar que los 2 grupos son balanceados
+Como dicen en el paper, así se puede asegurar que son similares desde la perscpectiva del empleador, lo cual, de no ser así, estas diferencias son por estos factores no observados
+
+Si hubieran usado información de postulantes verdaderos, es posible que los CVS (o Xi's) hubieran tenido medias diferentes, lo cual podría explicar las diferencias en los call backs, por ejemplo años o calidad de educación.
+
+Se hubiera subestimado el coeficiente de *black* en los *call-backs*, ya que esta tiene correlación con las otras variables explicativas, entonces, por ejemplo, si ser afro-americano está relacionado con otras variables que tienen relación con la Y, como años o calidad de educación, estas al ser visibles en el cv le quitarían fuerza a *black*
+
+((Hacer su cosita de variables omitidas?))
+
+### Pregunta 2
+
+
+Primero se generó una tabla de estadísticas descriptivas (media y desviación estándar) de las variables principales de interés, las de características de los individuos en los CVs. En esta, las columnas relevantes para ver que se aleatorizó correctamente son la 2° y la 3°, que indican a los individuos con nombres blancos y afroamericanos. Podemos notar que las medias son las mismas en ambas columnas, lo que implica que no se "favoreció" a un grupo en particular: aquí se verifica el balance. Si las proporciones no fueran iguales, y un grupo tuviera "más" o "menos" de cierta característica, ya no podríamos asegurar que el efecto de discriminar meramente por los nombres no está influido por algo más que la aleatorización.
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+options(qwraps2_markup = "latex")
+
+our_sum<-list("Licenciatura"=list("Licenciatura"= ~qwraps2::mean_sd(college)),
+              "Años de experiencia"=list("Años de experiencia"= ~qwraps2::mean_sd(yearsexp)),
+              "Experiencia militar"=list("Experiencia militar"= ~qwraps2::mean_sd(military)),
+              "Email"=list("Email"= ~qwraps2::mean_sd(email)),
+              "Hoyos de empleo"=list("Hoyos de empleo"= ~qwraps2::mean_sd(empholes)),
+              "Honores"=list("Honores"= ~qwraps2::mean_sd(honors)),
+              "Habilidades cómputo"=list("Habilidades computacionales"= ~qwraps2::mean_sd(computerskills)),
+              "Habilidades especiales"=list("Habilidades especiales"= ~qwraps2::mean_sd(specialskills)))
+
+whole1 <-summary_table(nam,our_sum)
+whole2<- summary_table(nam, summaries=our_sum, by=c("black","high"))
+both<-cbind(whole1,whole2)
+
+knitr::kable(both,caption="Estadísticas descriptivas",col.names=c("Total","Blancos","Afro-am.","Baja calidad","Alta calidad")) 
+
+```
+
+Otra forma de verificar esto es con una tabla de balance. En esta se busca no rechazar
+
+```{r, results='asis', message=FALSE,header=FALSE}
+variables23<-data.frame(college,yearsexp,military,email,empholes,honors,
+                       computerskills,specialskills,black)
+
+tabla23<-balance_table(variables23,treatment="black")
+         
+stargazer(as.data.frame(tabla23),type="latex",summary=FALSE,digits=2,title="Tabla de Balance",
+          covariate.labels=c( "No.","Variables", "Media control","Media tratamiento", "P-value"))
+```
+
+### Pregunta 3
+
+Estimador de Neyman
+
+```{r,results='asis', message=FALSE,header=FALSE,include=FALSE}
+stat.test<-nam %>% t_test(call_back ~ black, detailed = TRUE)
+
+st<-as.data.frame(stat.test)
+attach(st)
+
+stargazer(stat.test, title="Modelos discriminación racial",
+          type="latex",
+          header=FALSE,
+          column.sep.width = "2pt", 
+          font.size = "small")
+
+```
+sdadk
+
+```{r,results='asis', message=FALSE,header=FALSE}
+st1 <- st %>% dplyr::select(estimate, estimate1,estimate2,n1,statistic,p) %>% tibble::rownames_to_column()%>%
+  pivot_longer(-rowname) %>% pivot_wider(names_from=rowname,values_from=value)
+
+st1<-as.data.frame(st1)
+rownames(st1)<-c("Valor absoluto Diferencia","P(call_back|black=0)","P(call_back|black=1)","N","t-stat","p-value")
+View(st1)
+st2<- subset(st1,select=-c(name))
+View(st2)
+knitr::kable(st2,format="latex",caption="Estimador de Neyman")
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+a1<-lm(call_back ~ black, data = nam)
+summary(a1)
+cov1<-coeftest(a1, vcov = vcovHC(a1, type="HC3"))
+robust_se <- sqrt(diag(cov1))
+
+b1<-lm(call_back ~ black + female + chicago + I(female*black) + high + I(high*black), data = nam)
+cov2<-coeftest(b1, vcov = vcovHC(b1, type="HC3"))
+robust_se2 <- sqrt(diag(cov2))
+
+f1 <- glm(call_back ~ black,  family = binomial(link = "probit"),  data = nam)
+cov3<-coeftest(f1, vcov = vcovHC(f1, type="HC3"))
+robust_se3 <- sqrt(diag(cov3))
+
+nam$prob_pred<-predict.glm(f1,type="response")
+attach(nam)
+
+stargazer(a1,b1,f1, title="Modelos discriminación racial",
+          type="latex",
+          column.labels = c("MPL univariado",
+                            "MPL multivariado","Univariado"),
+          header=FALSE,
+          column.sep.width = "2pt", 
+          font.size = "small",se=list(robust_se,robust_se2,robust_se3))
+```
+
+
+
