@@ -32,6 +32,8 @@ library(powerMediation)
 library(tidyverse)
 library(ggeffects)
 library(ggplot2)
+library(EnvStats)
+
 
 nam<-read_dta("Names.dta")
 attach(nam)
@@ -49,7 +51,7 @@ Si hubieran usado información de postulantes verdaderos, es posible que los CVS
 
 Se hubiera subestimado el coeficiente de *black* en los *call-backs*, ya que esta tiene correlación con las otras variables explicativas, entonces, por ejemplo, si ser afro-americano está relacionado con otras variables que tienen relación con la Y, como años o calidad de educación, estas al ser visibles en el cv le quitarían fuerza a *black*
 
-((Hacer su cosita de variables omitidas?))
+Se elimina el sesgo de ser diferente desde el principio. 
 
 ### Pregunta 2
 
@@ -91,6 +93,27 @@ stargazer(as.data.frame(tabla23),type="latex",summary=FALSE,digits=2,title="Tabl
 
 ### Pregunta 3
 
+### a) Pruebas de hipótesis {-}
+
+En todas las pruebas la variable dependiente es la probabilidad de recibir call-back, representada en una variable dicotómica donde 1 es que la recibe y 0 que no. En los modelos univariados black es la variable independiente, donde 1 es indicador de ser afro-americano y 0 de ser blanco. 
+
+1. MCO (estimador de Neyman)
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
+
+2. MCO con errores heterocedásticos: 
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
+
+3. MCO  con controles: 
+
+
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+\beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
+
+
+probit: $Pr(Y=1 \mid X) = \Phi(X'\beta)$, donde $X'\beta= \beta_{0}+ \beta_{1} Black_i$
+
+
 Estimador de Neyman
 
 ```{r,results='asis', message=FALSE,header=FALSE,include=FALSE}
@@ -122,15 +145,9 @@ knitr::kable(st2,format="latex",caption="Estimador de Neyman")
 ```
 
 
-ols errores hetero: $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +u_{i}$
-
-ols con controles: $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+\beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$
-
-
-probit: $Pr(Y=1 \mid X) = \Phi(X'\beta)$, donde $X'\beta= \beta_{0}+ \beta_{1} Black_i$
-
-
 ```{r,results='asis', message=FALSE,header=FALSE}
+
+a0<-lm(call_back ~ black, data = nam)
 
 a1<-lm(call_back ~ black, data = nam)
 summary(a1)
@@ -148,14 +165,473 @@ robust_se3 <- sqrt(diag(cov3))
 nam$prob_pred<-predict.glm(f1,type="response")
 attach(nam)
 
-stargazer(a1,b1,f1, title="Modelos discriminación racial",
+stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
           type="latex",
-          column.labels = c("MPL univariado",
-                            "MPL multivariado","Univariado"),
           header=FALSE,
           column.sep.width = "2pt", 
-          font.size = "small",se=list(robust_se,robust_se2,robust_se3))
+          font.size = "small",se=list(NULL,robust_se,robust_se2,robust_se3))
+```
+
+(d) Elige una de las columnas para llevar a cabo una interpretación del coeficiente relevante que estas estimando. Da evidencia como parte de esta interpretación de la importancia del efecto. Es decir, consideras que es un efecto pequeño o grande?
+
+Si observamos la columna 1 y 3, que son los modelos univariados, en ambas el coeficiente de *black* es significativo al .01 y con signo negativo. En el caso de MCO (1), podríamos interpretarlo como "Ceteris paribus, en promedio, los afro-americanos tienen 3.2 puntos porcentuales menos probabilidad de recibir un "call-back" que la gente blanca. 
+
+Sin embargo, si observamos la columna 2, o el MPL multivariado, observamos que al agregar controles *black* pierde significancia.
+
+### Pregunta 4
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+#generamos las variables para evaluar
+
+nam$yc01<- nam$prob_pred+.01
+nam$yt01<- nam$prob_pred-.01
+
+attach(nam)
+
+#checar si lo de paired true está bien
+perm.test(DV ~ IV, paired=TRUE, alternative="two.sided",all.perms = TRUE, 
+          num.sim = 20000)$p.value
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+#1
+DV <- c(nam$yt01, nam$yc01)
+IV <- factor(rep(c("T", "C"), c(length(nam$yt01), length(nam$yc01))))
+pvalue(oneway_test(DV ~ IV, alternative="two.sided", 
+                   distribution=approximate(B=9999)))
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+B <- 99999
+dee <- nam$yt01-nam$yc01
+m0 <- mean(dee)
+
+# perform a one-sample randomization test on d
+# for the null hypothesis H0: mu_d = 0   vs H1 mu_d != 0  (i.e. two tailed)
+# here the test statistic is the mean
+rndmdist <- replicate(B,mean((rbinom(length(dee),1,.5)*2-1)*dee))
+
+# two tailed p-value:
+sum( abs(rndmdist) >= abs(m0))/length(rndmdist)
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+B <- 99999
+dee <- nam$yt01-nam$yc01
+m0 <- mean(dee)
+
+# perform a one-sample randomization test on d
+# for the null hypothesis H0: mu_d = 0   vs H1 mu_d != 0  (i.e. two tailed)
+# here the test statistic is the mean
+rndmdist <- replicate(B,mean((rbinom(length(dee),1,.5)*2-1)*dee))
+
+# two tailed p-value:
+sum( abs(rndmdist) >= abs(m0))/length(rndmdist)
+
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+x<-call_back[black==1]
+y<-call_back[black==0]
+twoSamplePermutationTestLocation(x, y,
+                                 alternative="two.sided",seed = 123)
+
+```
+valor p igual a cero
+
+Ho implica que todos los individuos el tratamiento no tiene efecto,
+en este caso sería exactamente igual a la probabilidad de ser negro más 1 pp
+(o que la probabilidad de call back si eres negro es 1 pp menor)
+esto implicaría que el efecto de tratamiento es constante: el mismo para 
+todos los individuos. La probabilidad de tener call back siendo blanco es la
+misma de ser negro + 1pp. Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de CB de los blancos sea 1pp mayor que la de todos los individuos afro-americanos. Arturo: estoy evaluando si el efecto constante del tratamiento es  igual a 1 pp 
+
+### Pregunta 5
+
+Estraificación por
+sexo
+cd
+industria
+Empleando todas las combinaciones posibles de las variables (i)-(iii),
+utiliza el metodo de Neyman para calcular el efecto de discrminacion en cada estrato
+(elige el formato que quieras para reportar este resultado, tabla o graca). Utilizando
+los efectos por estrato, calcula el efecto promedio de tratamiento. Compara
+este estimador promedio y la varianza con el resultado que obtuviste en la pregunta
+(3).
+
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+nam$industria=ifelse(manuf==1,1,
+               ifelse(transcom==1,2,
+               ifelse(bankreal==1,3,
+               ifelse(trade==1,4,
+               ifelse(busservice==1,5,
+               ifelse(othservice==1,6,
+               ifelse(missind==1,7,0)))))))
+
+
+nam %<>%
+  mutate(s = case_when(female == 0 & chicago == 0 & industria ==1 ~ 1,
+                       female == 0 & chicago == 0 & industria ==2 ~ 2,
+                       female == 0 & chicago == 0 & industria ==3 ~ 3,
+                       female == 0 & chicago == 0 & industria ==4 ~ 4,
+                       female == 0 & chicago == 0 & industria ==5 ~ 5,
+                       female == 0 & chicago == 0 & industria ==6 ~ 6,
+                       female == 0 & chicago == 0 & industria ==7 ~ 7,
+                       female == 0 & chicago == 1 & industria ==1 ~ 8,
+                       female == 0 & chicago == 1 & industria ==2 ~ 9,
+                       female == 0 & chicago == 1 & industria ==3 ~ 10,
+                       female == 0 & chicago == 1 & industria ==4 ~ 11,
+                       female == 0 & chicago == 1 & industria ==5 ~ 12,
+                       female == 0 & chicago == 1 & industria ==6 ~ 13,
+                       female == 0 & chicago == 1 & industria ==7 ~ 14,
+                       female == 1 & chicago == 0 & industria ==1 ~ 15,
+                       female == 1 & chicago == 0 & industria ==2 ~ 16,
+                       female == 1 & chicago == 0 & industria ==3 ~ 17,
+                       female == 1 & chicago == 0 & industria ==4 ~ 18,
+                       female == 1 & chicago == 0 & industria ==5 ~ 19,
+                       female == 1 & chicago == 0 & industria ==6 ~ 20,
+                       female == 1 & chicago == 0 & industria ==7 ~ 21,
+                       female == 1 & chicago == 1 & industria ==1 ~ 22,
+                       female == 1 & chicago == 1 & industria ==2 ~ 23,
+                       female == 1 & chicago == 1 & industria ==3 ~ 24,
+                       female == 1 & chicago == 1 & industria ==4 ~ 25,
+                       female == 1 & chicago == 1 & industria ==5 ~ 26,
+                       female == 1 & chicago == 1 & industria ==6 ~ 27,
+                       female == 1 & chicago == 1 & industria ==7 ~ 28,
+                       TRUE ~ 0))
+
+ey11 <- nam %>%
+  filter(s == 1 & black == 1) %$%
+  mean(call_back)
+ey10 <- nam %>%
+  filter(s == 1 & black == 0) %$%
+  mean(call_back)
+ey21 <- nam %>%
+  filter(s == 2 & black == 1) %$%
+  mean(call_back)
+ey20 <- nam %>%
+  filter(s == 2 & black == 0) %$%
+  mean(call_back)
+ey31 <- nam %>%
+  filter(s == 3 & black == 1) %$%
+  mean(call_back)
+ey30 <- nam %>%
+  filter(s == 3 & black == 0) %$%
+  mean(call_back)
+ey41 <- nam %>%
+  filter(s == 4 & black == 1) %$%
+  mean(call_back)
+ey40 <- nam %>%
+  filter(s == 4 & black == 0) %$%
+  mean(call_back)
+ey51 <- nam %>%
+  filter(s == 5 & black == 1) %$%
+  mean(call_back)
+ey50 <- nam %>%
+  filter(s == 5 & black == 0) %$%
+  mean(call_back)
+ey61 <- nam %>%
+  filter(s == 6 & black == 1) %$%
+  mean(call_back)
+ey60 <- nam %>%
+  filter(s == 6 & black == 0) %$%
+  mean(call_back)
+ey71 <- nam %>%
+  filter(s == 7 & black == 1) %$%
+  mean(call_back)
+ey70 <- nam %>%
+  filter(s == 7 & black == 0) %$%
+  mean(call_back)
+ey81 <- nam %>%
+  filter(s == 8 & black == 1) %$%
+  mean(call_back)
+ey80 <- nam %>%
+  filter(s == 8 & black == 0) %$%
+  mean(call_back)
+ey91 <- nam %>%
+  filter(s == 9 & black == 1) %$%
+  mean(call_back)
+ey90 <- nam %>%
+  filter(s == 9 & black == 0) %$%
+  mean(call_back)
+ey101 <- nam %>%
+  filter(s == 10 & black == 1) %$%
+  mean(call_back)
+ey100 <- nam %>%
+  filter(s == 10 & black == 0) %$%
+  mean(call_back)
+ey111 <- nam %>%
+  filter(s == 11 & black == 1) %$%
+  mean(call_back)
+ey110 <- nam %>%
+  filter(s == 11 & black == 0) %$%
+  mean(call_back)
+ey121 <- nam %>%
+  filter(s == 12 & black == 1) %$%
+  mean(call_back)
+ey120 <- nam %>%
+  filter(s == 12 & black == 0) %$%
+  mean(call_back)
+ey131 <- nam %>%
+  filter(s == 13 & black == 1) %$%
+  mean(call_back)
+ey130 <- nam %>%
+  filter(s == 13 & black == 0) %$%
+  mean(call_back)
+ey141 <- nam %>%
+  filter(s == 14 & black == 1) %$%
+  mean(call_back)
+ey140 <- nam %>%
+  filter(s == 14 & black == 0) %$%
+  mean(call_back)
+ey151 <- nam %>%
+  filter(s == 15 & black == 1) %$%
+  mean(call_back)
+ey150 <- nam %>%
+  filter(s == 15 & black == 0) %$%
+  mean(call_back)
+ey161 <- nam %>%
+  filter(s == 16 & black == 1) %$%
+  mean(call_back)
+ey160 <- nam %>%
+  filter(s == 16 & black == 0) %$%
+  mean(call_back)
+ey171 <- nam %>%
+  filter(s == 17 & black == 1) %$%
+  mean(call_back)
+ey170 <- nam %>%
+  filter(s == 17 & black == 0) %$%
+  mean(call_back)
+ey181 <- nam %>%
+  filter(s == 18 & black == 1) %$%
+  mean(call_back)
+ey180 <- nam %>%
+  filter(s == 18 & black == 0) %$%
+  mean(call_back)
+ey191 <- nam %>%
+  filter(s == 19 & black == 1) %$%
+  mean(call_back)
+ey190 <- nam %>%
+  filter(s == 19 & black == 0) %$%
+  mean(call_back)
+ey201 <- nam %>%
+  filter(s == 20 & black == 1) %$%
+  mean(call_back)
+ey200 <- nam %>%
+  filter(s == 20 & black == 0) %$%
+  mean(call_back)
+ey211 <- nam %>%
+  filter(s == 21 & black == 1) %$%
+  mean(call_back)
+ey210 <- nam %>%
+  filter(s == 21 & black == 0) %$%
+  mean(call_back)
+ey221 <- nam %>%
+  filter(s == 22 & black == 1) %$%
+  mean(call_back)
+ey220 <- nam %>%
+  filter(s == 22 & black == 0) %$%
+  mean(call_back)
+ey231 <- nam %>%
+  filter(s == 23 & black == 1) %$%
+  mean(call_back)
+ey230 <- nam %>%
+  filter(s == 23 & black == 0) %$%
+  mean(call_back)
+ey241 <- nam %>%
+  filter(s == 24 & black == 1) %$%
+  mean(call_back)
+ey240 <- nam %>%
+  filter(s == 24 & black == 0) %$%
+  mean(call_back)
+ey251 <- nam %>%
+  filter(s == 25 & black == 1) %$%
+  mean(call_back)
+ey250 <- nam %>%
+  filter(s == 25 & black == 0) %$%
+  mean(call_back)
+ey261 <- nam %>%
+  filter(s == 26 & black == 1) %$%
+  mean(call_back)
+ey260 <- nam %>%
+  filter(s == 26 & black == 0) %$%
+  mean(call_back)
+ey271 <- nam %>%
+  filter(s == 27 & black == 1) %$%
+  mean(call_back)
+ey270 <- nam %>%
+  filter(s == 27 & black == 0) %$%
+  mean(call_back)
+ey281 <- nam %>%
+  filter(s == 28 & black == 1) %$%
+  mean(call_back)
+ey280 <- nam %>%
+  filter(s == 28 & black == 0) %$%
+  mean(call_back)
+
+
+#diferencias sobrevivir cada estrato
+diff1 = ey11 - ey10
+diff2 = ey21 - ey20
+diff3 = ey31 - ey30
+diff4 = ey41 - ey40
+diff5 = ey51 - ey50
+diff6 = ey61 - ey60
+diff7 = ey71 - ey70
+diff8 = ey81 - ey80
+diff9 = ey91 - ey90
+diff10 = ey101 - ey100
+diff11= ey111 - ey110
+diff12 = ey121 - ey120
+diff13 = ey131 - ey130
+diff14 = ey141 - ey140
+diff15 = ey151 - ey150
+diff16 = ey161 - ey160
+diff17= ey171 - ey170
+diff18 = ey181 - ey180
+diff19 = ey191 - ey190
+diff20 = ey201 - ey200
+diff21 = ey211 - ey210
+diff22 = ey221 - ey220
+diff23 = ey231 - ey230
+diff24 = ey241 - ey240
+diff25 = ey251 - ey250
+diff26 = ey261 - ey260
+diff27 = ey271 - ey270
+diff28 = ey281 - ey280
+
+
+#weights
+obs=nrow(nam)
+
+wt1 <- nam %>%
+  filter(s == 1 ) %$%
+  nrow(.)/obs
+wt2 <- nam %>%
+  filter(s == 2 ) %$%
+  nrow(.)/obs
+wt3 <- nam %>%
+  filter(s == 3 ) %$%
+  nrow(.)/obs
+wt4 <- nam %>%
+  filter(s == 4 ) %$%
+  nrow(.)/obs
+wt5 <- nam %>%
+  filter(s == 5 ) %$%
+  nrow(.)/obs
+wt6 <- nam %>%
+  filter(s == 6 ) %$%
+  nrow(.)/obs
+wt7 <- nam %>%
+  filter(s == 7 ) %$%
+  nrow(.)/obs
+wt8 <- nam %>%
+  filter(s == 8 ) %$%
+  nrow(.)/obs
+wt9 <- nam %>%
+  filter(s == 9 ) %$%
+  nrow(.)/obs
+wt10 <- nam %>%
+  filter(s == 10 ) %$%
+  nrow(.)/obs
+wt11 <- nam %>%
+  filter(s == 11 ) %$%
+  nrow(.)/obs
+wt12 <- nam %>%
+  filter(s == 12 ) %$%
+  nrow(.)/obs
+wt13 <- nam %>%
+  filter(s == 13 ) %$%
+  nrow(.)/obs
+wt14 <- nam %>%
+  filter(s == 14 ) %$%
+  nrow(.)/obs
+wt15 <- nam %>%
+  filter(s == 15 ) %$%
+  nrow(.)/obs
+wt16 <- nam %>%
+  filter(s == 16 ) %$%
+  nrow(.)/obs
+wt17 <- nam %>%
+  filter(s == 17 ) %$%
+  nrow(.)/obs
+wt18 <- nam %>%
+  filter(s == 18 ) %$%
+  nrow(.)/obs
+wt19 <- nam %>%
+  filter(s == 19 ) %$%
+  nrow(.)/obs
+wt20 <- nam %>%
+  filter(s == 20 ) %$%
+  nrow(.)/obs
+wt21 <- nam %>%
+  filter(s == 21 ) %$%
+  nrow(.)/obs
+wt22 <- nam %>%
+  filter(s == 22 ) %$%
+  nrow(.)/obs
+wt23 <- nam %>%
+  filter(s == 23 ) %$%
+  nrow(.)/obs
+wt24 <- nam %>%
+  filter(s == 24 ) %$%
+  nrow(.)/obs
+wt25 <- nam %>%
+  filter(s == 25 ) %$%
+  nrow(.)/obs
+wt26 <- nam %>%
+  filter(s == 26 ) %$%
+  nrow(.)/obs
+wt27 <- nam %>%
+  filter(s == 27 ) %$%
+  nrow(.)/obs
+wt28 <- nam %>%
+  filter(s == 28 ) %$%
+  nrow(.)/obs
+
+sum(wt1,wt2,wt3,wt4,wt5,wt6,wt7,wt8,wt9,wt10,wt11,wt12,wt13,wt14,
+    wt15,wt16,wt17,wt18,wt19,wt20,wt21,wt22,wt23,wt24,wt25,wt26,wt27, wt28)
+
+
+wate = diff1*wt1 + diff2*wt2 + diff3*wt3 + diff4*wt4+ diff5*wt5 + diff6*wt6 + diff7*wt7 + diff8*wt8+
+  diff9*wt9 + diff10*wt10 + diff11*wt11 + diff12*wt12+ diff13*wt13 + diff14*wt14 + diff15*wt15 + 
+  diff16*wt16+ diff17*wt17 + diff18*wt18 + diff19*wt19 + diff20*wt20+ diff21*wt21 + diff22*wt22 + diff23*wt23 + 
+  diff24*wt24+  diff25*wt25 + diff26*wt26 + diff27*wt27+diff28*wt28
+
+# 
+Diferencias<-c(diff1,diff2,diff3,diff4,diff5,diff6,diff7,diff8,diff9,diff10,diff11,diff12,diff13,
+               diff14,diff15,diff16,diff17,diff18,diff19,diff20,diff21,diff22,diff23,
+               diff24,diff25,diff26,diff27,diff28 )
+
+Estrato<-c("Hombre/Boston/Manufacturera","Hombre/Boston/Transporte o comunicaciones","Hombre/Boston/Finanzas, seguros, inmuebles","Hombre/Boston/Comercio","Hombre/Boston/Servicios personales","Hombre/Boston/Servicios sociales","Hombre/Boston/Otro",
+           "Hobre/Chicago/Manufacturera","Hombre/Chicago/Transporte o comunicaciones","Hombre/Chicago/Finanzas, seguros, inmuebles","Hombre/Chicago/Comercio","Hombre/Chicago/Servicios personales","Hombre/Chicago/Servicios sociales","Hombre/Chicago/Otro",
+           "Mujer/Boston/Manufacturera","Mujer/Boston/Transporte o comunicaciones","Mujer/Boston/Finanzas, seguros, inmuebles","Mujer/Boston/Comercio","Mujer/Boston/Servicios personales","Mujer/Boston/Servicios sociales","Mujer/Boston/Otro",
+           "Mujer/Chicago/Manufacturera","Mujer/Chicago/Transporte o comunicaciones","Mujer/Chicago/Finanzas, seguros, inmuebles","Mujer/Chicago/Comercio","Mujer/Chicago/Servicios personales","Mujer/Boston/Servicios sociales","Mujer/Chicago/Otro")
+
+
+df<-data.frame(Estrato, Diferencias, stringsAsFactors=TRUE)
+kable(df, booktabs=T,digits=4,col.names = c("Estrato","Diferencia Probabilidad de call-back entre Afroamericanos y Blancos")) %>% kable_styling(position = "center")
+
+stargazer(wate, gate, type = "text")
+
 ```
 
 
-hhhh
+
+
+
+
+
+
+
+
