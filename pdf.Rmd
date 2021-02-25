@@ -1,7 +1,7 @@
 ---
 title: "Tarea 1"
-author: "Mayra Samantha Cervantes Bravo"
-date: "18/2/2021"
+author: "Mayra Samantha Cervantes Bravo - 141371"
+date: "01/3/2021"
 output:
   pdf_document: 
     latex_engine: xelatex
@@ -209,7 +209,7 @@ twoSamplePermutationTestLocation(x, y,
 
 ```
 
-El valor- p igual a cero (reportado como 0). Ho implica que la probabilidad de recibir call-back siendo blanco es mayor a la de los afro-americanos en exactamente 1 pp. Se evalúa si el efecto de tratamiento es constante e igual a 1 pp . Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de CB de los blancos sea 1pp mayor que la de todos los individuos afro-americanos.
+El valor-p es igual a cero (reportado como 0). *Ho* implica que la probabilidad de recibir call-back siendo blanco es mayor a la de los afro-americanos en exactamente 1 pp. Se evalúa si el efecto de tratamiento es constante e igual a 1 pp . Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de *call-back* de los blancos sea 1pp mayor que la de todos los individuos afro-americanos.
 
 ### Pregunta 5
 
@@ -581,9 +581,12 @@ df<-data.frame(Estrato, Diferencias, stringsAsFactors=TRUE)
 kable(df, booktabs=T,digits=4,col.names = c("Estrato","Diferencia Probabilidad de call-back entre Afroamericanos y Blancos")) %>% kable_styling(position = "center")
 
 ```
+La siguiente tabla compara estos resultados con el efecto de tratamiento sin estratificar: 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-## falta
+
+vartau_estr<-var(call_back[black==1]/length(yiT))+var(call_back[black==0]/length(yiC)))
+
 stargazer(wate, gate, type = "text")
 ```
 
@@ -707,23 +710,11 @@ stargazer(d.3, title="Experiencia y raza en Call-backs",
 Podemos observar que para el grupo base (blancos) los años de experiencia tienen un rendimiento decreciente en la probabilidad de que les hagan *call-back*, mientras que con las personas afroamericanas tiene rendimientos crecientes pero no significativos. Se ilustra en la siguiente gráfica:
 
 
-```{r,results='asis', message=FALSE,header=FALSE}
-
-years2=yearsexp*yearsexp
-
-#plot de los efectos, black como factor (en la regresión es indiferente pero en los plots no)
-
-d.34factor<-lm(call_back ~ (yearsexp + yearsexp2)*as.factor(black), data = nam)
-mydf <- ggpredict(d.34factor, terms = c("black","yearsexp","years2"))
-plot(mydf)
-
-```
-
 ### Pregunta 8
 
 ### a) Calcular tamaño de la muestra {-}
 
-Con las siguientes características:
+Para obtener el tamaño de la muestra adecuado para las siguientes características:
 
 (i) Efecto real: .0320, varianza: 0.00006 
 (ii) Poder estadístico: 85%, 
@@ -731,13 +722,15 @@ Con las siguientes características:
 (iv) División 50-50 tratamiento y control
 (v) Proporción de blancos que reciben call-back: .0965 
 (vi) Proporción de afro-americanos que reciben call-back: 0.06447639
+(vii) Cohen's d (o efecto real estandarizado): .118
+
+Se usó la función *SSizeLogisticBin*, la cual calcula la N para regresiones logísticas simples con variable regresora binaria. Se priorizó esta antes de otras funciones porque esta permite especificar a la $\gamma$, o la proporción de observaciones en tratamiento, además de la proporción de "éxitos" en cada grupo (control y tratamiento). Se obtuvo una n de 3762, similar al número de observaciones de Bertrand y Mullainathan, que fue de 4870. Si hacemos los calculos respectivos, obtenemos que esto implica que ellos tuvieron un poder de .9376.
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
 SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 
 ```
-Obtenemos una N de 3760. 
 
 ### b) Trade-off poder estadístico y proporción tratamiento y control {-}
 
