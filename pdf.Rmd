@@ -46,7 +46,7 @@ La aleatorización de los nombres es relevante para el experimento  debido a que
 
 Si hubieran usado información de postulantes verdaderos, no se podría asegurar que los CVs serían similares desde la perspectiva del empleador, y la decisión podría ser por las diferentes características de los grupos en las variables explicativas, por ejemplo, medias diferentes en años de educación en blancos y afro-americanos. Si este caso hipotético fuera cierto, no se podría distinguir si la decisión fue por estos factores o por discriminación: de ahí la importancia de la aleatoriedad y el balance.  
 
-De haber seguido esa estrategia, su coeficiente de *black* estaría sesgado por variables omitidas, por lo explicado anteriormente. Variables que están corelacionadas con ser afro-americano o blanco, que también están relacionadas con la probabilidad de recibir *call-back* (como años de educación) hubieran generado un sesgo positivo, inflando su coeficiente.
+De haber seguido esa estrategia, su coeficiente de *black* tendría por variables omitidas, por lo explicado anteriormente. Si los afro-americanos tienen características (Xi's) que tienen relación negativa con probabilidad de call_back (como haber cursado la licenciatura o tener email, hipotéticamente), y estas variables tienen una relación positiva con la probabilidad de recibir *call_back*, entonces habría un sesgo negativo, donde el coeficiente de *black* sería mayor al estimador sesgado, sobreestimando el efecto de ser afro-americano en esta probabilidad. 
 
 ### Pregunta 2
 
@@ -109,13 +109,13 @@ donde
 
 $H_{0}: \beta_{1} = 0 $ vs $H_{1}: \beta_{1} < 0$
 
-3. MCO donde los controles son la dummy *female*, donde 1 es ser mujer; la interacción *female* con *black*; *high*, dummy donde 1 es que el CV es de calidad alta, y la interacción de CVs de alta calidad y de *black*:
+3. MCO donde los controles son: la dummy *female*, donde 1 es ser mujer; *high*, dummy donde 1 es que el CV es de calidad alta y 0 que es de baja y; *chicago* donde 1 indica que la información es de Chicago y 0 que es de Boston. Esto permite controlar para que el ATE sea insesgado.
 
-$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (Female_i*Black_i)+ \beta_{4} High_i+\beta_{5} (High_i*Black_i)+u_{i}$,
+$CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} Female_i+\beta_{3} (High_i)+ \beta_{4} Chicago_i +u_{i}$,
 
 donde
 
-$H_{0}: \beta_{1} =\beta_{3} = \beta_{5} = 0 $ vs $H_{1}: *eoc*$
+$H_{0}: \tau = 0 $ vs $H_{1}: \tau < 0 $
 
 4. Probit sin controles:
 
@@ -160,11 +160,10 @@ El estimador se incorpora en la tabla de resultados en la primera columna, ya qu
 a0<-lm(call_back ~ black, data = nam)
 
 a1<-lm(call_back ~ black, data = nam)
-summary(a1)
 cov1<-coeftest(a1, vcov = vcovHC(a1, type="HC3"))
 robust_se <- sqrt(diag(cov1))
 
-b1<-lm(call_back ~ black + female + I(female*black) + high + I(high*black), data = nam)
+b1<-lm(call_back ~ black + female + high + chicago, data = nam)
 cov2<-coeftest(b1, vcov = vcovHC(b1, type="HC3"))
 robust_se2 <- sqrt(diag(cov2))
 
@@ -173,7 +172,7 @@ cov3<-coeftest(f1, vcov = vcovHC(f1, type="HC3"))
 robust_se3 <- sqrt(diag(cov3))
 
 stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
-          type="latex",
+          type="latex", col
           header=FALSE,
           column.sep.width = "2pt", 
           font.size = "small",se=list(NULL,robust_se,robust_se2,robust_se3))
@@ -181,9 +180,9 @@ stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
 
 ### d) Interpretación {-} 
 
-Si observamos la columna 1 y 3, que son los modelos univariados, en ambas el coeficiente de *black* es significativo al .01 y con signo negativo. En el caso de MCO (1), podríamos interpretarlo como "Ceteris paribus, en promedio, los afro-americanos tienen 3.2 puntos porcentuales menos de probabilidad de recibir un "call-back" que la gente blanca".
+Si comparamos la columna 1 y 2, que son los modelos MPL univariados, vemos que el coeficiente de *black* es negativo e igual en ambas pero significativo al .01 solo en la 1° columna, ya que en la segunda, al tener errores heterocedásticos, aumenta su varianza de .008 a .088. tiene y con signo negativo. En el caso de MCO (1) y (2), podríamos interpretarlo como "Ceteris paribus, en promedio, los afro-americanos tienen 3.2 puntos porcentuales menos de probabilidad de recibir un "call-back" que la gente blanca".
 
-Sin embargo, si observamos la columna 2, o el MPL multivariado, observamos que al agregar controles *black* pierde significancia, mas mantiene su signo. 
+En las columnas (3) y (4), que son el MPL multivariado y el probit, notamos que en la (3), como esperábamos, el coeficiente de black no cambió, y que en el probit se mantiene el signo negativo. 
 
 ### Pregunta 4
 
@@ -690,10 +689,11 @@ kable(df.tidy,digits=3,booktabs=T,col.names=c("Requisitos","Media","Sd","Efecto 
 
 ### Pregunta 7 
 
-Planteamos una especificación para buscar evidencia de que la discriminación tiene rendimientos decrecientes respecto a la experiencia (*yearsexp*):
+Planteamos una especificación para buscar evidencia de que la discriminación tiene rendimientos decrecientes respecto a la experiencia (*yearsexp*). Nuestra especificación es: 
 
 $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} YearsExp_i+\beta_{3} YearsExp_{i}^2 + \beta_{4} (YearsExp_i*Black_i) + \beta_{5} (YearsExp_i*Black_i)^2 + u_{i}$
 
+Se incluyeron los términos cuadráticos para encontrar rendimientos de los años de experiencia, e interacciones con *black* para ver si los *rendimientos de la discriminación*. Primero, observamos los resultados de la regresión:
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
@@ -707,7 +707,34 @@ stargazer(d.3, title="Experiencia y raza en Call-backs",
           font.size = "small")
 
 ```
-Podemos observar que para el grupo base (blancos) los años de experiencia tienen un rendimiento decreciente en la probabilidad de que les hagan *call-back*, mientras que con las personas afroamericanas tiene rendimientos crecientes pero no significativos. Se ilustra en la siguiente gráfica:
+Años de experiencia tiene una relación positiva y significativa con la probabilidad de recibir *call-back*, al igual que *yearsexp^2*, que señalaría rendimientos decrecientes de los blancos. Sin embargo,  $\beta_{5} (YearsExp_i*Black_i)^2$ tiene signo positivo y no es significativa. 
+
+En primera instancia,  podemos ver que el rendimiento inicial de los blancos en su primer año de experiencia es positivo, mientras que el de los afro-americanos es también positivo pero menor (.011 vs .003, resultado de sumar $\beta_{2} + \beta_{4}$). 
+
+En cuanto a las pendientes de los rendimientos de los dos grupos, la pendiente de los blancos $\beta_{3}$ es negativa pero muy pequeña (-.006, o $2*\beta_{3}$, sin embargo, la de los afro-americanos es *cero* ($\beta_{3} = -\beta_{5}$). Eso significa que los rendimientos en la probabilidad de ser llamados de vuelta dado para este grupo son constantes. Esto se ve así: 
+
+```{r,results='asis', message=FALSE,header=FALSE}
+d.3<-lm(call_back ~ black + yearsexp + I(yearsexp^2)+I(black*yearsexp)+I(black*yearsexp^2), data = nam)
+nam$predsq=predict(d.3,type="response")        
+ggplot(nam,aes(x = yearsexp,y =predsq,color=black3)) +
+  geom_point()+theme_minimal()+xlim(0,30)+ylim(0.04,.18)+labs(title="Relación años de experiencia con probabilidad de Call-back",
+                      x="Años de Experiencia",y="Probabilidad de Call-back")+scale_color_discrete(name = "Black", labels = c("Blanco", "Afro-am"))
+
+```
+
+Si realizamos una prueba de hipótesis conjunta para ver si los rendimientos de los años de experiencia son diferentes entre blancos y afroamericanos, donde $\beta_{4}$ señala el diferencial de la ordenada de los afro-americanos y $\beta_{5}$ el diferencial de su pendiente: 
+
+
+$H_{0}: \beta_{4} = 0 $ 
+        \beta_{5} = 0$
+        
+```{r,results='asis', message=FALSE,header=FALSE}
+#no me sale la prueba
+linearHypothesis(d.3, c("size=0", "expenditure=0"))
+        
+```
+Obtenemos que
+
 
 
 ### Pregunta 8
@@ -735,7 +762,53 @@ SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 ### b) Trade-off poder estadístico y proporción tratamiento y control {-}
 
 
+```{r,results='asis', message=FALSE,header=FALSE}
 
+#parameter=.9 p=0.4088183
+#parameter=.8 p=0.6867039
+#parameter=.7 p=.8059058
+#parameter=.6 p=.0.8485314
+#parameter=.5 p=.85
+#parameter=.4 p=0.8162238
+#parameter=.3 p=0.7326352
+#parameter=.2 p=0.5667912
+#parameter=.1 p=0.290891
+
+#
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.9,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.8,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.7,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.6,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.5,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.4,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.3,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.2,power=,alpha=.01)
+wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
+            parameter=.1,power=,alpha=.01)
+```
+
+```{r,results='asis', message=FALSE,header=FALSE}
+
+xs<-c(.1,.2,.3,.4,.5,.6,.7,.8,.9)
+ys<-c(0.290891,0.5667912,0.7326352,0.8162238,.85,0.8485314,.8059058,.6867039,0.4088183)
+
+df6<-data.frame(xs,ys)
+
+
+ggplot(df6,aes(x=xs, y=ys)) +
+  geom_line( color="grey") +
+  geom_point(shape=21, color="black", fill="#69b3a2", size=2) +
+  theme_minimal() +
+  ggtitle("Trade-off poder estadístico vs proporción Tratamiento/control")
+```
 
 
 
