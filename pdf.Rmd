@@ -125,7 +125,11 @@ donde
 
 $H_{0}: \beta_{1} Black_i = 0 $ vs $H_{1}: \beta_{1} Black_i < 0$
 
-
+#alfredo varianza que me mando. 
+#checar las regresiones porque sí debería de ser significativo.
+#si sacas el promedio de todos sale el -.032???
+#efecto es igual a cero. 
+#hacer el mergins........ y resolver resultados.
 
 ### b) Resultados {-}
 
@@ -209,6 +213,8 @@ twoSamplePermutationTestLocation(x, y,
 ```
 
 El valor-p es igual a cero (reportado como 0). *Ho* implica que la probabilidad de recibir call-back siendo blanco es mayor a la de los afro-americanos en exactamente 1 pp. Se evalúa si el efecto de tratamiento es constante e igual a 1 pp . Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de *call-back* de los blancos sea 1pp mayor que la de todos los individuos afro-americanos.
+
+#mu1-mu2 pones constante .01 y ya. en la de twosamplepermutationtest
 
 ### Pregunta 5
 
@@ -588,7 +594,7 @@ vartau_estr<-var(call_back[black==1]/length(yiT))+var(call_back[black==0]/length
 
 stargazer(wate, gate, type = "text")
 ```
-
+#.0077...
 
 ### Pregunta 6
 
@@ -761,6 +767,7 @@ SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 
 ### b) Trade-off poder estadístico y proporción tratamiento y control {-}
 
+#en ggplot puedes meter power. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 
