@@ -33,8 +33,7 @@ library(tidyverse)
 library(ggeffects)
 library(ggplot2)
 library(EnvStats)
-
-
+library(WebPower)
 nam<-read_dta("Names.dta")
 attach(nam)
 options(knitr.table.format = "latex")
@@ -51,12 +50,10 @@ De haber seguido esa estrategia, su coeficiente de *black* tendría por variable
 ### Pregunta 2
 
 
-Primero se generó una tabla de estadísticas descriptivas (media y desviación estándar) de las  características de los individuos en los CVs. En esta, las columnas relevantes para ver que se aleatorizó correctamente son la 2° y la 3°, que indican a los individuos con nombres blancos y afroamericanos. Podemos notar que las medias son las mismas en ambas columnas, lo que implica que no se "favoreció" a un grupo en particular: aquí se verifica el balance. Si las proporciones no fueran iguales, y un grupo tuviera "más" o "menos" de cierta característica, ya no podríamos asegurar que el efecto de discriminar está meramente por los nombres. 
+Primero se generó una tabla de estadísticas descriptivas (media y desviación estándar) de las  características de los individuos en los CVs. En esta, las columnas relevantes para ver que se aleatorizó correctamente son la 2° y la 3°, que indican a los individuos con nombres blancos y afroamericanos. Podemos notar que las medias son las mismas en ambas columnas, lo que implica que no se "favoreció" a un grupo en particular: aquí se verifica el balance. Si las proporciones no fueran iguales, y un grupo tuviera "más" o "menos" de cierta característica, ya no podríamos asegurar que el efecto de discriminar está meramente por los nombres.. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 options(qwraps2_markup = "latex")
-
 our_sum<-list("Licenciatura"=list("Licenciatura"= ~qwraps2::mean_sd(college)),
               "Años de experiencia"=list("Años de experiencia"= ~qwraps2::mean_sd(yearsexp)),
               "Experiencia militar"=list("Experiencia militar"= ~qwraps2::mean_sd(military)),
@@ -65,21 +62,18 @@ our_sum<-list("Licenciatura"=list("Licenciatura"= ~qwraps2::mean_sd(college)),
               "Honores"=list("Honores"= ~qwraps2::mean_sd(honors)),
               "Habilidades cómputo"=list("Habilidades computacionales"= ~qwraps2::mean_sd(computerskills)),
               "Habilidades especiales"=list("Habilidades especiales"= ~qwraps2::mean_sd(specialskills)))
-
 whole1 <-summary_table(nam,our_sum)
 whole2<- summary_table(nam, summaries=our_sum, by=c("black","high"))
 both<-cbind(whole1,whole2)
-
-knitr::kable(both,caption="Estadísticas descriptivas",col.names=c("Total","Blancos","Afro-am.","Baja calidad","Alta calidad",booktabs=T)) %>%
-  kable_styling(position = "center")
-
+kable(both,caption="Estadísticas descriptivas",booktabs=T)
+#%>% kable_styling(position = "center")
+#col.names=c("Total","Blancos","Afro-am.","Baja calidad","Alta calidad")
 ```
 Otra forma de verificar esto es con una tabla de balance. En esta se busca no rechazar, o que las diferencias de medias no sean estadísticamente diferentes de cero. Esto se cumple para todas las variables menos *computer skills*, que tiene un *p-value* de .03; no es significativa al .01 pero sí al .05.
 
 ```{r, results='asis', message=FALSE,header=FALSE}
 variables23<-data.frame(college,yearsexp,military,email,empholes,honors,
                        computerskills,specialskills,black)
-
 tabla23<-balance_table(variables23,treatment="black")
          
 stargazer(as.data.frame(tabla23),type="latex",summary=FALSE,digits=2,title="Tabla de Balance",
@@ -138,45 +132,37 @@ Antes de presentar la tabla de resultados, mostramos por separado al estimador d
 ```{r,results='asis', message=FALSE,header=FALSE,include=FALSE}
 #esto es para obtener estimadores, pero lo omitimos
 stat.test<-nam %>% t_test(call_back ~ black, detailed = TRUE)
-
 st<-as.data.frame(stat.test)
 attach(st)
-
 ```
 
 ```{r,results='asis', message=FALSE,header=FALSE}
 #aquí convertimos el resultado del t-test a data frame, lo transponemos y cambiamos formato
 st1 <- st %>% dplyr::select(estimate, estimate1,estimate2,n1,statistic,p) %>% tibble::rownames_to_column()%>%
   pivot_longer(-rowname) %>% pivot_wider(names_from=rowname,values_from=value)
-
 st1<-as.data.frame(st1)
 rownames(st1)<-c("Valor absoluto Diferencia","P(call_back|black=0)","P(call_back|black=1)","N","t-stat","p-value")
 View(st1)
 st2<- subset(st1,select=-c(name))
 View(st2)
-knitr::kable(st2,format="latex",caption="Estimador de Neyman",booktabs=T) %>% kable_styling(position="center")
-
+knitr::kable(st2,format="latex",caption="Estimador de Neyman",booktabs=T) 
+#%>% kable_styling(position="center")
 ```
 El estimador se incorpora en la tabla de resultados en la primera columna, ya que el coeficiente de $\beta_{1} Black_i$ es equivalente a $\tau$, y sus varianzas son iguales. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 a0<-lm(call_back ~ black, data = nam)
-
 a1<-lm(call_back ~ black, data = nam)
 cov1<-coeftest(a1, vcov = vcovHC(a1, type="HC3"))
 robust_se <- sqrt(diag(cov1))
-
 b1<-lm(call_back ~ black + female + high + chicago, data = nam)
 cov2<-coeftest(b1, vcov = vcovHC(b1, type="HC3"))
 robust_se2 <- sqrt(diag(cov2))
-
 f1 <- glm(call_back ~ black,  family = binomial(link = "probit"),  data = nam)
 cov3<-coeftest(f1, vcov = vcovHC(f1, type="HC3"))
 robust_se3 <- sqrt(diag(cov3))
-
 stargazer(a0,a1,b1,f1, title="Modelos discriminación racial",
-          type="latex", col
+          type="latex", 
           header=FALSE,
           column.sep.width = "2pt", 
           font.size = "small",se=list(NULL,robust_se,robust_se2,robust_se3))
@@ -197,19 +183,10 @@ $H_{o}: CallBack_{blancos}=CallBack_{afroam} + .01$,
 Con una *Fisher Exact Test*, que es una prueba de permutaciones:  
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
-#generamos las variables para evaluar
-
-nam$yc01<- nam$prob_pred+.01
-nam$yt01<- nam$prob_pred-.01
-
-attach(nam)
-
 x<-call_back[black==1]
 y<-call_back[black==0]
 twoSamplePermutationTestLocation(x, y,
                                  alternative="two.sided",seed = 123)
-
 ```
 
 El valor-p es igual a cero (reportado como 0). *Ho* implica que la probabilidad de recibir call-back siendo blanco es mayor a la de los afro-americanos en exactamente 1 pp. Se evalúa si el efecto de tratamiento es constante e igual a 1 pp . Rechazamos *Ho* lo que implica que se rechaza que la probabilidad de *call-back* de los blancos sea 1pp mayor que la de todos los individuos afro-americanos.
@@ -237,7 +214,6 @@ Estratificamos por las siguientes variables:
 Obteniendo 28 combinaciones diferentes. Se presenta el efecto de discriminación por estrato, el efecto promedio de tratamiento, y este comparado con el estimador de Neyman sin estratificar. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 nam$industria=ifelse(manuf==1,1,
                ifelse(transcom==1,2,
                ifelse(bankreal==1,3,
@@ -245,8 +221,6 @@ nam$industria=ifelse(manuf==1,1,
                ifelse(busservice==1,5,
                ifelse(othservice==1,6,
                ifelse(missind==1,7,0)))))))
-
-
 nam %<>%
   mutate(s = case_when(female == 0 & chicago == 0 & industria ==1 ~ 1,
                        female == 0 & chicago == 0 & industria ==2 ~ 2,
@@ -277,7 +251,6 @@ nam %<>%
                        female == 1 & chicago == 1 & industria ==6 ~ 27,
                        female == 1 & chicago == 1 & industria ==7 ~ 28,
                        TRUE ~ 0))
-
 ey11 <- nam %>%
   filter(s == 1 & black == 1) %$%
   mean(call_back)
@@ -446,8 +419,6 @@ ey281 <- nam %>%
 ey280 <- nam %>%
   filter(s == 28 & black == 0) %$%
   mean(call_back)
-
-
 #diferencias sobrevivir cada estrato
 diff1 = ey11 - ey10
 diff2 = ey21 - ey20
@@ -477,11 +448,8 @@ diff25 = ey251 - ey250
 diff26 = ey261 - ey260
 diff27 = ey271 - ey270
 diff28 = ey281 - ey280
-
-
 #weights
 obs=nrow(nam)
-
 wt1 <- nam %>%
   filter(s == 1 ) %$%
   nrow(.)/obs
@@ -566,33 +534,26 @@ wt27 <- nam %>%
 wt28 <- nam %>%
   filter(s == 28 ) %$%
   nrow(.)/obs
-
 wate = diff1*wt1 + diff2*wt2 + diff3*wt3 + diff4*wt4+ diff5*wt5 + diff6*wt6 + diff7*wt7 + diff8*wt8+
   diff9*wt9 + diff10*wt10 + diff11*wt11 + diff12*wt12+ diff13*wt13 + diff14*wt14 + diff15*wt15 + 
   diff16*wt16+ diff17*wt17 + diff18*wt18 + diff19*wt19 + diff20*wt20+ diff21*wt21 + diff22*wt22 + diff23*wt23 + 
   diff24*wt24+  diff25*wt25 + diff26*wt26 + diff27*wt27+diff28*wt28
-
 Diferencias<-c(diff1,diff2,diff3,diff4,diff5,diff6,diff7,diff8,diff9,diff10,diff11,diff12,diff13,
                diff14,diff15,diff16,diff17,diff18,diff19,diff20,diff21,diff22,diff23,
                diff24,diff25,diff26,diff27,diff28 )
-
 Estrato<-c("Hombre/Boston/Manufacturera","Hombre/Boston/Transporte o comunicaciones","Hombre/Boston/Finanzas, seguros, inmuebles","Hombre/Boston/Comercio","Hombre/Boston/Servicios personales","Hombre/Boston/Servicios sociales","Hombre/Boston/Otro",
            "Hobre/Chicago/Manufacturera","Hombre/Chicago/Transporte o comunicaciones","Hombre/Chicago/Finanzas, seguros, inmuebles","Hombre/Chicago/Comercio","Hombre/Chicago/Servicios personales","Hombre/Chicago/Servicios sociales","Hombre/Chicago/Otro",
            "Mujer/Boston/Manufacturera","Mujer/Boston/Transporte o comunicaciones","Mujer/Boston/Finanzas, seguros, inmuebles","Mujer/Boston/Comercio","Mujer/Boston/Servicios personales","Mujer/Boston/Servicios sociales","Mujer/Boston/Otro",
            "Mujer/Chicago/Manufacturera","Mujer/Chicago/Transporte o comunicaciones","Mujer/Chicago/Finanzas, seguros, inmuebles","Mujer/Chicago/Comercio","Mujer/Chicago/Servicios personales","Mujer/Boston/Servicios sociales","Mujer/Chicago/Otro")
-
-
 df<-data.frame(Estrato, Diferencias, stringsAsFactors=TRUE)
-kable(df, booktabs=T,digits=4,col.names = c("Estrato","Diferencia Probabilidad de call-back entre Afroamericanos y Blancos")) %>% kable_styling(position = "center")
-
+kable(df, booktabs=T,digits=4,col.names = c("Estrato","Diferencia Probabilidad de call-back entre Afroamericanos y Blancos"))
+#%>% kable_styling(position = "center")
 ```
 La siguiente tabla compara estos resultados con el efecto de tratamiento sin estratificar: 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
-vartau_estr<-var(call_back[black==1]/length(yiT))+var(call_back[black==0]/length(yiC)))
-
-stargazer(wate, gate, type = "text")
+#vartau_estr<-var(call_back[black==1]/length(yiT))+var(call_back[black==0]/length(yiC))
+#stargazer(wate, gate, type = "text")
 ```
 #.0077...
 
@@ -604,68 +565,46 @@ En esta sección obtenemos la media y desviación estándar de las variables de 
 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 #any req
-
 probitmfx(call_back ~ black+req+ black*req, nam, atmean = TRUE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #0.022860 , 0.019067
-
 #experience requirement
-
 probitmfx(call_back ~ black+expreq+ black*expreq, nam, atmean = TRUE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #0.010691 , 0.016685
-
 #computer req
-
 probitmfx(call_back ~ black+compreq+ black*compreq, nam, atmean = FALSE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #.00092, 0.01600186
-
 #comm skills
 probitmfx(call_back ~ black+comreq+ black*comreq, nam, atmean = FALSE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #-0.00038614 , 0.02350449
-
 #org skills
 probitmfx(call_back ~ black+orgreq+ black*orgreq, nam, atmean = FALSE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #0.0278613,  0.0427784
-
 #education
 probitmfx(call_back ~ black+educreq+ black*educreq, nam, atmean = FALSE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #-0.0308619,  0.0210996
-
 #total number of reqs
-
 #creamos totreq
 nam$totreq=expreq+comreq+educreq+compreq+orgreq
 attach(nam)
-
 probitmfx(call_back ~ black+totreq+ black*totreq, nam, atmean = FALSE, robust = TRUE, 
           clustervar1 = NULL, clustervar2 = NULL, start = NULL, control = list())
-
 #0.0015161 , 0.0081261
 attach(nam)
 df.sum <- nam %>% dplyr::select(req, expreq, comreq, educreq, compreq, 
          orgreq,totreq) %>% 
   summarise_each(funs(mean = mean, 
                       sd = sd))
-
 df.tidy <- df.sum %>% gather(stat, val) %>%
   separate(stat, into = c("var", "stat"), sep = "_") %>%
   spread(stat, val) %>%
   dplyr::select(mean, sd) # reorder columns
-
-
 #0.022860 , 0.019067
 #0.010691 , 0.016685
 #.00092, 0.01600186
@@ -673,24 +612,19 @@ df.tidy <- df.sum %>% gather(stat, val) %>%
 #0.0278613,  0.0427784
 #-0.0308619,  0.0210996
 #0.0015161 , 0.0081261
-
 Requisitos<-c("Alguno","Experiencia","Habilidades computacionales","Habilidades comunicacionales",
               "Habilidades organizacionales","Educacionales","Número total")
-
 marg.effects<-c(0.022860,0.010691,0.00092,-0.00038614,0.0278613,-0.0308619,0.0015161)
 marg.eff<-round(marg.effects,digits=3)
-
 marginal.sd<-c(0.019067,0.016685,0.01600186,0.02350449,0.0427784,0.0210996,0.0081261)
 marg.sd<-round(marginal.sd,digits=3)
-
 df.tidy$Requisitos=Requisitos
 df.tidy$marg.eff=marg.eff
 df.tidy$marg.sd=marg.sd
-
 df.tidy<-df.tidy[,c(3,1,2,4,5)]
-kable(df.tidy,digits=3,booktabs=T,col.names=c("Requisitos","Media","Sd","Efecto marginal","Sd efecto marginal"),
-                        rtitle="Tabla 7. Efecto de requisitos en call-backs diferenciados por raza") %>% kable_styling(position = "center")
-
+kable(df.tidy,digits=3,booktabs=T,col.names=c("Requisitos","Media","Sd","Efecto marginal","Sd efecto marginal")) 
+#rtitle="Tabla 7. Efecto de requisitos en call-backs diferenciados por raza"
+#%>% kable_styling(position = "center")
 ```
 
 ### Pregunta 7 
@@ -702,16 +636,13 @@ $CallBack_{i}=\beta_{0}+\beta_{1} Black_i +\beta_{2} YearsExp_i+\beta_{3} YearsE
 Se incluyeron los términos cuadráticos para encontrar rendimientos de los años de experiencia, e interacciones con *black* para ver si los *rendimientos de la discriminación*. Primero, observamos los resultados de la regresión:
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 d.3<-lm(call_back ~ black + yearsexp + I(yearsexp^2)+I(black*yearsexp)+I(black*yearsexp^2), data = nam)
-
 stargazer(d.3, title="Experiencia y raza en Call-backs",
           type="text",
           column.labels = c("MPL"),
           header=FALSE,
           column.sep.width = "2pt", 
           font.size = "small")
-
 ```
 Años de experiencia tiene una relación positiva y significativa con la probabilidad de recibir *call-back*, al igual que *yearsexp^2*, que señalaría rendimientos decrecientes de los blancos. Sin embargo,  $\beta_{5} (YearsExp_i*Black_i)^2$ tiene signo positivo y no es significativa. 
 
@@ -722,10 +653,10 @@ En cuanto a las pendientes de los rendimientos de los dos grupos, la pendiente d
 ```{r,results='asis', message=FALSE,header=FALSE}
 d.3<-lm(call_back ~ black + yearsexp + I(yearsexp^2)+I(black*yearsexp)+I(black*yearsexp^2), data = nam)
 nam$predsq=predict(d.3,type="response")        
+black3=as.factor(black)
 ggplot(nam,aes(x = yearsexp,y =predsq,color=black3)) +
   geom_point()+theme_minimal()+xlim(0,30)+ylim(0.04,.18)+labs(title="Relación años de experiencia con probabilidad de Call-back",
                       x="Años de Experiencia",y="Probabilidad de Call-back")+scale_color_discrete(name = "Black", labels = c("Blanco", "Afro-am"))
-
 ```
 
 Si realizamos una prueba de hipótesis conjunta para ver si los rendimientos de los años de experiencia son diferentes entre blancos y afroamericanos, donde $\beta_{4}$ señala el diferencial de la ordenada de los afro-americanos y $\beta_{5}$ el diferencial de su pendiente: 
@@ -736,7 +667,7 @@ $H_{0}: \beta_{4} = 0 $
         
 ```{r,results='asis', message=FALSE,header=FALSE}
 #no me sale la prueba
-linearHypothesis(d.3, c("size=0", "expenditure=0"))
+#linearHypothesis(d.3, c("size=0", "expenditure=0"))
         
 ```
 Obtenemos que
@@ -760,9 +691,7 @@ Para obtener el tamaño de la muestra adecuado para las siguientes característi
 Se usó la función *SSizeLogisticBin*, la cual calcula la N para regresiones logísticas simples con variable regresora binaria. Se priorizó esta antes de otras funciones porque esta permite especificar a la $\gamma$, o la proporción de observaciones en tratamiento, además de la proporción de "éxitos" en cada grupo (control y tratamiento). Se obtuvo una n de 3762, similar al número de observaciones de Bertrand y Mullainathan, que fue de 4870. Si hacemos los calculos respectivos, obtenemos que esto implica que ellos tuvieron un poder de .9376.
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
-
 ```
 
 ### b) Trade-off poder estadístico y proporción tratamiento y control {-}
@@ -770,7 +699,6 @@ SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 #en ggplot puedes meter power. 
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 #parameter=.9 p=0.4088183
 #parameter=.8 p=0.6867039
 #parameter=.7 p=.8059058
@@ -780,7 +708,6 @@ SSizeLogisticBin(p1=0.09650924,p2=0.06447639,B=.5,alpha=.01,power=.85)
 #parameter=.3 p=0.7326352
 #parameter=.2 p=0.5667912
 #parameter=.1 p=0.290891
-
 #
 wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",family="Bernoulli",
             parameter=.9,power=,alpha=.01)
@@ -803,20 +730,12 @@ wp.logistic(n=3813,p0 = 0.09650924, p1 = 0.06447639,alternative="two.sided",fami
 ```
 
 ```{r,results='asis', message=FALSE,header=FALSE}
-
 xs<-c(.1,.2,.3,.4,.5,.6,.7,.8,.9)
 ys<-c(0.290891,0.5667912,0.7326352,0.8162238,.85,0.8485314,.8059058,.6867039,0.4088183)
-
 df6<-data.frame(xs,ys)
-
-
 ggplot(df6,aes(x=xs, y=ys)) +
   geom_line( color="grey") +
   geom_point(shape=21, color="black", fill="#69b3a2", size=2) +
   theme_minimal() +
   ggtitle("Trade-off poder estadístico vs proporción Tratamiento/control")
 ```
-
-
-
-
