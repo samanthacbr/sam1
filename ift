@@ -1,0 +1,237 @@
+
+#AMBIENTE
+
+library(readxl)
+library(readr)
+library(stargazer)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(Jmisc)
+library(stringi)
+
+
+###################### 
+
+#. 1. IMPORTAR BASES Y HACER MERGE POR LOCALIDAD
+
+#CENSO 2020
+
+temp <- tempfile()
+download.file("https://www.inegi.org.mx/contenidos/programas/ccpv/iter/zip/iter2020/iter_nalcsv20.zip",temp)
+censo<-read.csv(unz(temp,"ITER_NALCSV20.csv"),encoding= "ASCII")
+unlink(temp)
+
+##CENSO 2010
+censo_10<-read.csv("http://ri.uaemex.mx/bitstream/handle/20.500.11799/58449/03%20Censo%20de%20poblaci%c3%b3n%20por%20localidades%202010.csv?sequence=2&isAllowed=y")
+
+
+#PREPROCESAMIENTO CENSO 2010
+
+
+censo_10_localidad<-censo_10 %>% 
+  mutate(internet_10= vph_inter*100/vivtot,
+         pc_10 =vph_pc*100/vivtot,
+         pobindig_10=phog_ind*100/pobtot,
+         popindig_10_real=p3ym_hli*100/pobtot,
+         p15sinesc_10=p15ym_se*100/pobtot,
+         promesc_10=graproes*100/pobtot,
+         pocup_10=pocupada*100/pobtot,
+         psinsalud_10=psinder*100/pobtot,
+         jefmujer_10=hogjef_f*100/vivtot,
+         cel_10=vph_cel*100/vivtot,
+         porc_viv_luz=vph_c_elec*100/vivtot,
+         niñas_12_14_esc= (p_12a14_f-p12a14noaf)*100/p_12a14_f,
+         prop_niñas_12_14_esc=(p_12a14_f-p12a14noaf+p_12a14_m-p_12a14_m)*100/(p_12a14-p12a14noa))
+
+#OJO: 84,690 MISSING VALUES PROVENIENTES DE LA BASE DE DATOS 
+
+
+censo_10_localidad <- as.data.frame(t(apply(censo_10_localidad,1,toupper)))
+
+#nuevas variables porc_viv_luz popindig_10_real, niñas_12_14_esc, ambito, inter_pc_internet
+
+names(censo_10_localidad)[names(censo_10_localidad) == "Entidad"] <- "NOM_ENT"
+names(censo_10_localidad)[names(censo_10_localidad) == "Municipio"] <- "NOM_MUN"
+names(censo_10_localidad)[names(censo_10_localidad) == "Localidad"] <- "NOM_LOC" 
+
+
+#PREPROCESAMIENTO CENSO 2020
+
+
+#A) Encontrar acceso a internet en censo a nivel localidad
+#convierto variables de interes a numéricas
+names<-c('VIVTOT','TVIVPAR','VIVPAR_HAB', #localidad
+         'VPH_INTER','VPH_PC',#internet y laptop
+         'VPH_INTER','VPH_PC','PHOG_IND','P15YM_SE',
+         'POBTOT','HOGJEF_F','VPH_CEL','GRAPROES',
+         'POCUPADA','PSINDER') #variables sam
+
+for (i in names){
+  censo[[i]] <- as.numeric(censo[[i]])
+}
+
+
+#creo la base de datos de interes 
+censo_20_localidad<-censo %>% 
+  mutate(internet_20=VPH_INTER*100/VIVTOT,
+         pc_20=VPH_PC*100/VIVTOT,
+         pobindig_20=PHOG_IND*100/POBTOT,
+         p15sinesc_20=P15YM_SE*100/POBTOT,
+         promesc_20=GRAPROES*100/POBTOT,
+         pocup_20=POCUPADA*100/POBTOT,
+         psinsalud_20=PSINDER*100/POBTOT,
+         jefmujer_20=HOGJEF_F*100/VIVTOT,
+         cel_20=VPH_CEL*100/VIVTOT
+  )
+#cambio todo a mayus
+censo_20_localidad <- as.data.frame(t(apply(censo_20_localidad,1,toupper)))
+
+# cambio nombres
+
+names(censo_20_localidad)[names(censo_20_localidad) == "Entidad"] <- "NOM_ENT"
+names(censo_20_localidad)[names(censo_20_localidad) == "Municipio"] <- "NOM_MUN"
+names(censo_20_localidad)[names(censo_20_localidad) == "Localidad"] <- "NOM_LOC"  
+
+
+#PREPOCESAMIENTO: MERGE CENSOS
+
+#Preparacion para 2020
+censo_20_localidad$ENTIDAD<-as.numeric(censo_20_localidad$ENTIDAD)
+censo_20_localidad$MUN<-as.numeric(censo_20_localidad$MUN)
+censo_20_localidad$LOC<-as.numeric(censo_20_localidad$LOC)
+#Creo indice INEGI
+censo_20_localidad<-censo_20_localidad%>%
+  mutate(MUN=sprintf("%03d",censo_20_localidad$MUN),
+         ENT=sprintf("%02d",censo_20_localidad$ENTIDAD),
+         LOC=sprintf("%04d",censo_20_localidad$LOC)) %>% 
+  mutate(a=paste(ENT,MUN,sep=""))%>% 
+  mutate(INEGI=paste(a,LOC,sep=""))
+
+
+#Preparacion 2010 (ya viene muy preparado)
+
+censo_10_localidad$ClaveLoc<-as.numeric(censo_10_localidad$ClaveLoc)
+
+#Creo indice INEGI
+censo_10_localidad<-censo_10_localidad%>%
+  mutate(INEGI=sprintf("%09d",censo_10$ClaveLoc))
+
+
+#MERGE
+censos<-merge(censo_10_localidad,censo_20_localidad, by= "INEGI")
+
+#________________________
+#ANALISIS CENSOS
+#________________________
+
+names<-c('pc_10','internet_10', #agregar en caso de que no sean numericas
+         'internet_20','pc_20') 
+
+for (i in names){
+  censos[[i]] <- as.numeric(censos[[i]])
+}
+
+summary(censos)
+
+#PROBLEMA DE MISSING VALUES
+
+## metemos las de region a censos y metemos las de cambio
+
+## ojo con la de cambio pc y cambio itnernet
+
+data<- censos %>% mutate(cambio_internet=internet_20-internet_10,
+                        cambio_pc=pc_20-pc_10,
+                        inter_pc_internet= cambio_pc*cambio_internet,
+                        region= ifelse(ClaveEnt %in% c(9,12,13,15,17,21,29,20),'Centro',
+                                       (ifelse(ClaveEnt %in% c(1,6,11,14,16,18,22,24,32), "Occidente",
+                                               (ifelse(ClaveEnt %in% c(2,3,8,5,10,19,25,26,28),"Norte", "Sudeste"))))))
+
+summary(data$cambio_internet) #notamos que el cambio de internet estuvo cañon
+summary(data$cambio_pc)  #notamos que el cambio de pc no tanto
+summary(factor(data$region))
+#Agrego regiones
+#claves<-data %>% select(ClaveEnt,NOM_ENT.y.y,NOM_ENT.x.x,NOM_ENT.y.x,NOM_ENT.x.y)%>% group_by(ClaveEnt)%>%
+#summarize(Nombre1 = Mode(NOM_ENT.y.y),Nombre2 = Mode(NOM_ENT.x.x),Nombre3= Mode(NOM_ENT.y.x),Nombre4 = Mode(NOM_ENT.x.y))
+#1	Región Centro (Ciudad de México, Guerrero, Hidalgo, Estado de México, Morelos, Puebla, Tlaxcala y Oaxaca)
+#9|12|13|15|17|21|29|20
+#2	Región Centro Occidente (Aguascalientes, Colima, Guanajuato, Jalisco, Michoacán de Ocampo, Nayarit, Querétaro, San Luis Potosí y Zacatecas)
+#1|6|11|14|16|18|22|24|32
+#3	Región Norte (Baja California, Baja California Sur, Chihuahua, Coahuila, Durango, Nuevo León, Sinaloa, Sonora y Tamaulipas)
+#2|3|8|5|10|19|25|26|28
+#4	Región Sureste (Campeche, Chiapas, Quintana Roo, Tabasco, Veracruz de Ignacio de la Llave y Yucatán)
+#4|7|23|27|30|31
+
+#________________________
+#GUARDO BASE FINAL
+#________________________
+
+write_csv(data,"data.csv")
+
+
+####################
+
+
+## Descriptivas
+
+
+#MODELOS INGENUOS
+
+#____________HISTOGRAMAS
+
+# VAR DEPENDIENTE
+
+hist(data$cambio_internet)
+hist(data$cambio_pc)
+
+
+# CUADRO DESCRIPTIVAS
+
+f_data<-data %>% select (-VIVTOT,-TVIVPAR,-VIVPAR_HAB,-VPH_INTER,-VPH_PC)
+stargazer(f_data,header=FALSE)
+
+
+############################
+
+# tabla de balance
+# paquetes
+
+install.packages("devtools")
+library(devtools)
+install_github("isidorogu/RCT")
+
+#librería
+
+library(RCT)
+
+# descriptivas
+
+
+variables<-data.frame(age,educ,black,hisp,married,nodegr,treat)
+tabla1<-summary_statistics(variables)
+stargazer(as.data.frame(tabla1),type="text",summary=FALSE)
+
+
+#tabla de balance
+
+tabla<-balance_table(variables,treatment = "treat")stargazer(as.data.frame(tabla),type="text",summary=FALSE)
+
+# prueba F
+
+stargazer(as.data.frame(tabla3$F_test),type="text",summary=FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
