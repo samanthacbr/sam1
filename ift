@@ -223,7 +223,1027 @@ stargazer(as.data.frame(tabla3$F_test),type="text",summary=FALSE)
 
 
 
+## Anexo 2. Tablas de balance y pruebas Fisher de las covariables.
 
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Español, top, internet. 
+# intervalo
+9+4.539
+9-4.539
+## Anexo 2. Tablas de balance y pruebas Fisher de las covariables.
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Español, top, internet. 
+# intervalo
+9+4.539
+9-4.539
+
+marg_C<-(data$marg[cambio_internet>=4.461 & cambio_internet<=8])
+marg_T<-(data$marg[cambio_internet>=9 & cambio_internet<=13.539])
+promesc_C<-(data$promesc_20[cambio_internet>=4.461 & cambio_internet<=8])
+promesc_T<-(data$promesc_20[cambio_internet>=9 & cambio_internet<=13.539])
+pocup_C<-(data$pocup_20[cambio_internet>=4.461 & cambio_internet<=8])
+pocup_T<-(data$pocup_20[cambio_internet>=9 & cambio_internet<=13.539])
+ind_C<-(data$popindig_10_real[cambio_internet>=4.461 & cambio_internet<=8])
+ind_T<-(data$popindig_10_real[cambio_internet>=9 & cambio_internet<=13.539])
+luz_C<-(data$porc_viv_luz[cambio_internet>=4.461 & cambio_internet<=8])
+luz_T<-(data$porc_viv_luz[cambio_internet>=9 & cambio_internet<=13.539])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=4.461 & cambio_internet<=8])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=9 & cambio_internet<=13.539])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.C<-c("1.694","43.579","1.885","9.170","74.645","49.524")
+Media.T<-c("1.810", "43.305","1.911","12.866","75.525","49.226")
+Diferencia<-c("0.116", "-0.274","0.026","3.716","0.88","0.298")
+Valor.p<-c("0.09", "0.4883","0.154","0.00","0.088",".4623")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. P-value es cero. Rechazamos que sean iguales a cero en conjunto. No la podemos utilizar
+data1<-data[which(cambio_internet<=13.53 & cambio_internet>=4.461),]
+data$t1<-as.numeric(ifelse(data$cambio_internet<9,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t1,prop_niñas_12_14_esc)
+tabla1<-balance_regression(variables,treatment="t1")
+stargazer(as.data.frame(tabla1$F_test),type="text",summary=FALSE)
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Matemáticas, top, cambio internet. 21,7.692
+
+#intervalo
+21+7.692
+21-7.692
+
+#
+marg_C<-(data$marg[cambio_internet>=13.308 & cambio_internet<=21])
+marg_T<-(data$marg[cambio_internet>=21 & cambio_internet<=28.692])
+promesc_C<-(data$promesc_20[cambio_internet>=13.308 & cambio_internet<=21])
+promesc_T<-(data$promesc_20[cambio_internet>=21 & cambio_internet<=28.692])
+pocup_C<-(data$pocup_20[cambio_internet>=13.308 & cambio_internet<=21])
+pocup_T<-(data$pocup_20[cambio_internet>=21 & cambio_internet<=28.692])
+ind_C<-(data$popindig_10_real[cambio_internet>=13.308 & cambio_internet<=21])
+ind_T<-(data$popindig_10_real[cambio_internet>=21 & cambio_internet<=28.692])
+luz_C<-(data$porc_viv_luz[cambio_internet>=13.308 & cambio_internet<=21])
+luz_T<-(data$porc_viv_luz[cambio_internet>=21 & cambio_internet<=28.692])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=13.308 & cambio_internet<=21])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=21 & cambio_internet<=28.692])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternat
+ive="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("1.497","43.873","1.880","5.266","77.347","50.385")
+Media.C<-c("1.549", "43.616","1.871","6.508","75.918","49.761")
+Diferencia<-c("-0.052", "0.257","0.009","-1.242","1.429","0.624")
+Valor.p<-c("0.455", "0.51","0.731",".076","0.001","0.110")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data2<-data[which(cambio_internet<=28.692 & cambio_internet>=13.308),]
+data$t2<-as.numeric(ifelse(data$cambio_internet<21,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t2,prop_niñas_12_14_esc)
+tabla2<-balance_regression(variables,treatment="t2")
+stargazer(as.data.frame(tabla2$F_test),type="text",summary=FALSE)
+
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Español, bottom, cambio internet. 3, 2.885
+
+#intervalo
+3+2.885
+3-2.885
+
+marg_C<-(data$marg[cambio_internet>=0.115 & cambio_internet<=3])
+marg_T<-(data$marg[cambio_internet>=3 & cambio_internet<=5.885])
+promesc_C<-(data$promesc_20[cambio_internet>=0.115 & cambio_internet<=3])
+promesc_T<-(data$promesc_20[cambio_internet>=3 & cambio_internet<=5.885])
+pocup_C<-(data$pocup_20[cambio_internet>=0.115 & cambio_internet<=3])
+pocup_T<-(data$pocup_20[cambio_internet>=3 & cambio_internet<=5.885])
+ind_C<-(data$popindig_10_real[cambio_internet>=0.115 & cambio_internet<=3])
+ind_T<-(data$popindig_10_real[cambio_internet>=3 & cambio_internet<=5.885])
+luz_C<-(data$porc_viv_luz[cambio_internet>=0.115 & cambio_internet<=3])
+luz_T<-(data$porc_viv_luz[cambio_internet>=3 & cambio_internet<=5.885])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=0.115 & cambio_internet<=3])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=3 & cambio_internet<=5.885])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+
+## NO CUADRA SAM
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+#Media.T<-c("1.917","","43.091","1.919","14.682","74.592","49.415")
+#Media.C<-c("1.805", "41.701","1.939","21.735","74.859","49.302")
+#Diferencia<-c("0.112", "1.39","-0.02","-7.053","-0.027","0.113")
+#Valor.p<-c(".049", "0.0004","0.103","0.000",".586","0.75")
+#dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+#kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data3<-data[which(cambio_internet<=5.885 & cambio_internet>=.115),]
+data$t3<-as.numeric(ifelse(data$cambio_internet<3,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t3,prop_niñas_12_14_esc)
+tabla3<-balance_regression(variables,treatment="t3")
+stargazer(as.data.frame(tabla3$F_test),type="text",summary=FALSE)
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Mate, bottom, cambio internet. 6,4.837
+
+#intervalo
+
+6+4.837
+6-4.837
+
+marg_C<-(data$marg[cambio_internet>=1.163 & cambio_internet<=6])
+marg_T<-(data
+$marg[cambio_internet>=6 & cambio_internet<=10.837])
+promesc_C<-(data$promesc_20[cambio_internet>=1.163 & cambio_internet<=6])
+promesc_T<-(data$promesc_20[cambio_internet>=6 & cambio_internet<=10.837])
+pocup_C<-(data$pocup_20[cambio_internet>=1.163 & cambio_internet<=6])
+pocup_T<-(data$pocup_20[cambio_internet>=6 & cambio_internet<=10.837])
+ind_C<-(data$popindig_10_real[cambio_internet>=1.163 & cambio_internet<=6])
+ind_T<-(data$popindig_10_real[cambio_internet>=6 & cambio_internet<=10.837])
+luz_C<-(data$porc_viv_luz[cambio_internet>=1.163 & cambio_internet<=6])
+luz_T<-(data$porc_viv_luz[cambio_internet>=6 & cambio_internet<=10.837])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=1.163 & cambio_internet<=6])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=6 & cambio_internet<=10.837])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("1.943", "42.409","1.925","17.158","74.737"," 49.643")
+Media.C<-c("1.704","43.641","1.906","11.156","75.499","49.390 ")
+Diferencia<-c("0.239", "1.232",".019","6.002","0.762","0.253")
+Valor.p<-c("0.00", "0.00","0.176","0.00","0.071","0.434")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data4<-data[which(cambio_internet<=10.837 & cambio_internet>=1.163),]
+data$t4<-as.numeric(ifelse(data$cambio_internet<6,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t4,prop_niñas_12_14_esc)
+tabla4<-balance_regression(variables,treatment="t4")
+stargazer(as.data.frame(tabla4$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# español, top, internet+pc 9, 37.309
+
+#intervalo
+9+ 37.309
+9-37.309
+
+
+marg_C<-(data$marg[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+marg_T<-(data$marg[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+promesc_T<-(data$promesc_20[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+pocup_T<-(data$pocup_20[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.493", "41.489","1.936","18.497","73.335","x")
+Media.C<-c("1.594","43.374","1.908","12.489","75.439","x")
+Diferencia<-c("0.899", "-1.885","0.028","6.008
+","-2.104","x")
+Valor.p<-c("0.00", "0.00","0.00","0.00","0.00","x")
+dataf<-data.frame(Variable, Media.C, Media.T,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data5<-data[which(cambio_internet<=46.309 & cambio_internet>=-28.309),]
+data$t5<-as.numeric(ifelse(data$cambio_internet<9,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t5)
+tabla5<-balance_regression(variables,treatment="t5")
+stargazer(as.data.frame(tabla5$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# mate, top, internet + pc. 17, 35.984
+
+#intervalo
+17+35.984
+17-35.984
+
+marg_C<-(data$marg[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+marg_T<-(data$marg[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+promesc_T<-(data$promesc_20[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+pocup_T<-(data$pocup_20[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.369", "41.721","1.935","18.057","73.519","49.357")
+Media.C<-c("1.558","43.541","1.898","11.368","75.803","49.723")
+Diferencia<-c("0.811", "-1.82","0.037","6.689","-2.284","-0.366")
+Valor.p<-c("0.00", "0.00","0.002","0.00","0.00","0.180")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data6<-data[which(cambio_internet<=52.984 & cambio_internet>=-18.984),]
+data$t6<-as.numeric(ifelse(data$cambio_internet<17,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t6,prop_niñas_12_14_esc)
+tabla6<-balance_regression(variables,treatment="t6")
+stargazer(as.data.frame(tabla6$F_test),type="text",summary=FALSE)
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+#Español, bottom, internet + pc. 3, 38.146
+
+#intervalo
+3+38.146
+3-38.146
+
+marg_C<-(data$marg[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+marg_T<-(data$marg[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+promesc_T<-(data$promesc_20[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+pocup_T<-(data$pocup_20[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-35
+.146 & inter_pc_internet<=3])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.712", "41.185","1.940","18.057","72.979","49.462")
+Media.C<-c("1.645","43.100","1.918","11.368","75.203","49.771")
+Diferencia<-c("1.067", "-1.915","0.022","7.589","-2.224","-0.309")
+Valor.p<-c("0.00", "0.00","0.024","0.00","0.00",".2484")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data7<-data[which(cambio_internet<=41.146 & cambio_internet>=-35.146),]
+data$t7<-as.numeric(ifelse(data$cambio_internet<3,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t7,prop_niñas_12_14_esc)
+tabla7<-balance_regression(variables,treatment="t7")
+stargazer(as.data.frame(tabla7$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Mate, bottom, internet+ pc- 17, 41.53
+
+#intervalo
+17+41.53
+17-41.53
+
+marg_C<-(data$marg[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+marg_T<-(data$marg[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+promesc_T<-(data$promesc_20[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+pocup_T<-(data$pocup_20[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.369", "41.727","1.936","17.934","73.540","49.339")
+Media.C<-c("1.557","43.586","1.897","11.087","75.809","49.708")
+Diferencia<-c("0.812", "-1.859","0.039","6.847","-2.269","-0.370")
+Valor.p<-c("0.00", "0.00","0.001","0.00","0.00","0.159")
+dataf<-data.frame(Variable, Media.C, Media.T,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+```{r, echo=FALSE,message=FALSE,warnin
+g=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data8<-data[which(cambio_internet<=58.53 & cambio_internet>=-24.53),]
+data$t8<-as.numeric(ifelse(data$cambio_internet<17,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t8,prop_niñas_12_14_esc)
+tabla8<-balance_regression(variables,treatment="t8")
+stargazer(as.data.frame(tabla8$F_test),type="text",summary=FALSE)
+
+## Anexo 3. Test de robustez: resultados con covariables
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE,include=FALSE}
+Z<-cbind(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,prop_niñas_12_14_esc)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out = rdrobust(data$cambio_esp_top,data$cambio_internet,kernel = "triangular", c=9,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out1 = rdrobust(data$cambio_mat_top,data$cambio_internet,kernel = "triangular", c=21,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out1)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out2 = rdrobust(data$cambio_esp_bottom,data$cambio_internet, kernel = "triangular", c=3,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out2)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out3 = rdrobust(data$cambio_mat_bottom,data$cambio_internet,kernel = "triangular", c=6,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out3)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out4 = rdrobust(data$cambio_esp_top,data$inter_pc_internet,kernel = "triangular", c=9,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out4)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out5 = rdrobust(data$cambio_mat_top,data$inter_pc_internet, kernel = "triangular", c=17,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out5)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out6 = rdrobust(data$cambio_esp_bottom,data$inter_pc_internet,kernel = "triangular", c=3,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out6)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out7 = rdrobust(data$cambio_mat_bottom,data$inter_pc_internet,kernel = "triangular", c=17,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out7)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Row<-c("Cambio español top","Cambio matemáticas top","Cambio español bottom","Cambio matemáticas bottom")
+cut<-c("9","21","3","6")
+bw<-c("4.55","7.692","2.882","4.837")
+point.nuev<-c("1.244","1.973","-3.767","-0.588")
+pval<-c("0.032","0.185","0.119",".815")
+ci<-c("[0.02 , 2.64]","[-1.52 , 5.55]","[-10.242, 1.086]","[-5.969 , 5.672]")
+point.orig<-c("1.235","1.996","-3.914","-0.567")
+dataf<-data.frame(Row,cut,bw,point.nuev,pval,point.orig,ci, stringsAsFactors=TRUE)
+
+kable(dataf, booktabs=T,col.names=c("Modelo","Punto de corte", "Ancho de banda", "Estimador puntual con Covariables",
+                                    "Valor-p","Estimador puntual sin Covariables","IC 95% robustos"),caption = "Tabla 1. Resultados de cambio acceso a Internet con covaria bles") %>%  kable_styling(position = "center", latex_options = "scale_down")
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Row<-c("Cambio español top","Cambio matemáticas top","Cambio español bottom","Cambio matemáticas bottom")
+cut<-c("9","17","3","17")
+bw<-c("37.309","35.984","38.146","41.53")
+point.nuev<-c("1.134","3.285","-3.455","-2.854")
+pval<-c("0.001","0.001","0.006","0.160")
+ci<-c("[0.335 , 1.873]","[1.248 , 5.321]","[-6.269 , -0.871]","[-7.109 , 1.509]")
+point.orig<-c("1.235","1.996","-3.914","-0.567")
+
+dataf<-data.frame(Row,cut,bw,point.nuev,pval,point.orig,ci, stringsAsFactors=TRUE)
+
+kable(dataf, booktabs=T,col.names=c("Modelo","Pun
+`{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("1.497","43.873","1.880","5.266","77.347","50.385")
+Media.C<-c("1.549", "43.616","1.871","6.508","75.918","49.761")
+Diferencia<-c("-0.052", "0.257","0.009","-1.242","1.429","0.624")
+Valor.p<-c("0.455", "0.51","0.731",".076","0.001","0.110")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data2<-data[which(cambio_internet<=28.692 & cambio_internet>=13.308),]
+data$t2<-as.numeric(ifelse(data$cambio_internet<21,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t2,prop_niñas_12_14_esc)
+tabla2<-balance_regression(variables,treatment="t2")
+stargazer(as.data.frame(tabla2$F_test),type="text",summary=FALSE)
+
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Español, bottom, cambio internet. 3, 2.885
+
+#intervalo
+3+2.885
+3-2.885
+
+marg_C<-(data$marg[cambio_internet>=0.115 & cambio_internet<=3])
+marg_T<-(data$marg[cambio_internet>=3 & cambio_internet<=5.885])
+promesc_C<-(data$promesc_20[cambio_internet>=0.115 & cambio_internet<=3])
+promesc_T<-(data$promesc_20[cambio_internet>=3 & cambio_internet<=5.885])
+pocup_C<-(data$pocup_20[cambio_internet>=0.115 & cambio_internet<=3])
+pocup_T<-(data$pocup_20[cambio_internet>=3 & cambio_internet<=5.885])
+ind_C<-(data$popindig_10_real[cambio_internet>=0.115 & cambio_internet<=3])
+ind_T<-(data$popindig_10_real[cambio_internet>=3 & cambio_internet<=5.885])
+luz_C<-(data$porc_viv_luz[cambio_internet>=0.115 & cambio_internet<=3])
+luz_T<-(data$porc_viv_luz[cambio_internet>=3 & cambio_internet<=5.885])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=0.115 & cambio_internet<=3])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=3 & cambio_internet<=5.885])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+
+## NO CUADRA SAM
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+#Media.T<-c("1.917","","43.091","1.919","14.682","74.592","49.415")
+#Media.C<-c("1.805", "41.701","1.939","21.735","74.859","49.302")
+#Diferencia<-c("0.112", "1.39","-0.02","-7.053","-0.027","0.113")
+#Valor.p<-c(".049", "0.0004","0.103","0.000",".586","0.75")
+#dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+#kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data3<-data[which(cambio_internet<=5.885 & cambio_internet>=.115),]
+data$t3<-as.numeric(ifelse(data$cambio_internet<3,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t3,prop_niñas_12_14_esc)
+tabla3<-balance_regression(variables,treatment="t3")
+stargazer(as.data.frame(tabla3$F_test),type="text",summary=FALSE)
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Mate, bottom, cambio internet. 6,4.837
+
+#intervalo
+
+6+4.837
+6-4.837
+
+marg_C<-(data$marg[cambio_internet>=1.163 & cambio_internet<=6])
+marg_T<-(data$marg[cambio_internet>=6 & cambio_internet<=10.837])
+promesc_C<-(data$prome
+"Valor-p","Estimador puntual sin Covariables","IC 95% robustos"),caption = "Tabla 2. Resultados de cambio acceso a Internet con covariables") %>% 
+  kable_styling(position = "center", latex_options = "scale_down") 
+
+```
+et>=3 & inter_pc_internet<=41.146])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.712", "41.185","1.940","18.057","72.979","49.462")
+Media.C<-c("1.645","43.100","1.918","11.368","75.203","49.771")
+Diferencia<-c("1.067", "-1.915","0.022","7.589","-2.224","-0.309")
+Valor.p<-c("0.00", "0.00","0.024","0.00","0.00",".2484")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data7<-data[which(cambio_internet<=41.146 & cambio_internet>=-35.146),]
+data$t7<-as.numeric(ifelse(data$cambio_internet<3,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t7,prop_niñas_12_14_esc)
+tabla7<-balance_regression(variables,treatment="t7")
+stargazer(as.data.frame(tabla7$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Mate, bottom, internet+ pc- 17, 41.53
+
+#intervalo
+17+41.53
+17-41.53
+
+marg_C<-(data$marg[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+marg_T<-(data$marg[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+promesc_T<-(data$promesc_20[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+pocup_T<-(data$pocup_20[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-24.53 & inter_pc_internet<=17])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=17 & inter_pc_internet<=58.53])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.369", "41.727","1.936","17.934","73.540","49.339")
+Media.C<-c("1.557","43.586","1.897","11.087","75.809","49.708")
+Diferencia<-c("0.812", "-1.859","0.039","6.847","-2.269","-0.370")
+Valor.p<-c("0.00", "0.00","0.001","0.00","0.00","0.159")
+dataf<-data.frame(Variable, Media.C, Media.T,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales
+sc_20[cambio_internet>=1.163 & cambio_internet<=6])
+promesc_T<-(data$promesc_20[cambio_internet>=6 & cambio_internet<=10.837])
+pocup_C<-(data$pocup_20[cambio_internet>=1.163 & cambio_internet<=6])
+pocup_T<-(data$pocup_20[cambio_internet>=6 & cambio_internet<=10.837])
+ind_C<-(data$popindig_10_real[cambio_internet>=1.163 & cambio_internet<=6])
+ind_T<-(data$popindig_10_real[cambio_internet>=6 & cambio_internet<=10.837])
+luz_C<-(data$porc_viv_luz[cambio_internet>=1.163 & cambio_internet<=6])
+luz_T<-(data$porc_viv_luz[cambio_internet>=6 & cambio_internet<=10.837])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=1.163 & cambio_internet<=6])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=6 & cambio_internet<=10.837])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("1.943", "42.409","1.925","17.158","74.737"," 49.643")
+Media.C<-c("1.704","43.641","1.906","11.156","75.499","49.390 ")
+Diferencia<-c("0.239", "1.232",".019","6.002","0.762","0.253")
+Valor.p<-c("0.00", "0.00","0.176","0.00","0.071","0.434")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data4<-data[which(cambio_internet<=10.837 & cambio_internet>=1.163),]
+data$t4<-as.numeric(ifelse(data$cambio_internet<6,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t4,prop_niñas_12_14_esc)
+tabla4<-balance_regression(variables,treatment="t4")
+stargazer(as.data.frame(tabla4$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# español, top, internet+pc 9, 37.309
+
+#intervalo
+9+ 37.309
+9-37.309
+
+
+marg_C<-(data$marg[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+marg_T<-(data$marg[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+promesc_T<-(data$promesc_20[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+pocup_T<-(data$pocup_20[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-28.309 & inter_pc_internet<=9])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=9 & inter_pc_internet<= 46.309])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.493", "41.489","1.936","18.497","73.335","x")
+Media.C<-c("1.594","43.374","1.908","12.489","75.439","x")
+Diferencia<-c("0.899", "-1.885","0.028","6.008","-2.104","x")
+Valor.p<-c("0.00", "0.00","0.00","0.00","0.00","x")
+dataf<-
+data.frame(Variable, Media.C, Media.T,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data5<-data[which(cambio_internet<=46.309 & cambio_internet>=-28.309),]
+data$t5<-as.numeric(ifelse(data$cambio_internet<9,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t5)
+tabla5<-balance_regression(variables,treatment="t5")
+stargazer(as.data.frame(tabla5$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# mate, top, internet + pc. 17, 35.984
+
+#intervalo
+17+35.984
+17-35.984
+
+marg_C<-(data$marg[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+marg_T<-(data$marg[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+promesc_T<-(data$promesc_20[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+pocup_T<-(data$pocup_20[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+ind_T<-(data$popindig_10_real[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+luz_C<-(data$porc_viv_luz[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+luz_T<-(data$porc_viv_luz[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+ninas_C<-(data$prop_niñas_12_14_esc[inter_pc_internet>=-18.984 & inter_pc_internet<=17])
+ninas_T<-(data$prop_niñas_12_14_esc[inter_pc_internet>=17 & inter_pc_internet<=52.984])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.T<-c("2.369", "41.721","1.935","18.057","73.519","49.357")
+Media.C<-c("1.558","43.541","1.898","11.368","75.803","49.723")
+Diferencia<-c("0.811", "-1.82","0.037","6.689","-2.284","-0.366")
+Valor.p<-c("0.00", "0.00","0.002","0.00","0.00","0.180")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. p-value es 0. Rechazamos que sean iguales a cero en conjunto, no las podemos usar
+
+data6<-data[which(cambio_internet<=52.984 & cambio_internet>=-18.984),]
+data$t6<-as.numeric(ifelse(data$cambio_internet<17,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t6,prop_niñas_12_14_esc)
+tabla6<-balance_regression(variables,treatment="t6")
+stargazer(as.data.frame(tabla6$F_test),type="text",summary=FALSE)
+
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+#Español, bottom, internet + pc. 3, 38.146
+
+#intervalo
+3+38.146
+3-38.146
+
+marg_C<-(data$marg[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+marg_T<-(data$marg[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+promesc_C<-(data$promesc_20[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+promesc_T<-(data$promesc_20[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+pocup_C<-(data$pocup_20[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+pocup_T<-(data$pocup_20[inter_pc_internet>=3 & inter_pc_internet<=41.146])
+ind_C<-(data$popindig_10_real[inter_pc_internet>=-35.146 & inter_pc_internet<=3])
+ind_T<-(data$popindig_10_real[inter_pc_intern
+a cero en conjunto, no las podemos usar
+
+data8<-data[which(cambio_internet<=58.53 & cambio_internet>=-24.53),]
+data$t8<-as.numeric(ifelse(data$cambio_internet<17,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t8,prop_niñas_12_14_esc)
+tabla8<-balance_regression(variables,treatment="t8")
+stargazer(as.data.frame(tabla8$F_test),type="text",summary=FALSE)
+
+## Anexo 3. Test de robustez: resultados con covariables
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE,include=FALSE}
+Z<-cbind(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,prop_niñas_12_14_esc)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out = rdrobust(data$cambio_esp_top,data$cambio_internet,kernel = "triangular", c=9,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out1 = rdrobust(data$cambio_mat_top,data$cambio_internet,kernel = "triangular", c=21,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out1)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out2 = rdrobust(data$cambio_esp_bottom,data$cambio_internet, kernel = "triangular", c=3,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out2)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out3 = rdrobust(data$cambio_mat_bottom,data$cambio_internet,kernel = "triangular", c=6,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out3)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out4 = rdrobust(data$cambio_esp_top,data$inter_pc_internet,kernel = "triangular", c=9,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out4)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out5 = rdrobust(data$cambio_mat_top,data$inter_pc_internet, kernel = "triangular", c=17,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out5)
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out6 = rdrobust(data$cambio_esp_bottom,data$inter_pc_internet,kernel = "triangular", c=3,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out6)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+out7 = rdrobust(data$cambio_mat_bottom,data$inter_pc_internet,kernel = "triangular", c=17,p = 1, bwselect = "mserd",cluster=data$ClaveMun,covs=Z)
+summary(out7)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Row<-c("Cambio español top","Cambio matemáticas top","Cambio español bottom","Cambio matemáticas bottom")
+cut<-c("9","21","3","6")
+bw<-c("4.55","7.692","2.882","4.837")
+point.nuev<-c("1.244","1.973","-3.767","-0.588")
+pval<-c("0.032","0.185","0.119",".815")
+ci<-c("[0.02 , 2.64]","[-1.52 , 5.55]","[-10.242, 1.086]","[-5.969 , 5.672]")
+point.orig<-c("1.235","1.996","-3.914","-0.567")
+dataf<-data.frame(Row,cut,bw,point.nuev,pval,point.orig,ci, stringsAsFactors=TRUE)
+
+kable(dataf, booktabs=T,col.names=c("Modelo","Punto de corte", "Ancho de banda", "Estimador puntual con Covariables",
+                                    "Valor-p","Estimador puntual sin Covariables","IC 95% robustos"),caption = "Tabla 1. Resultados de cambio acceso a Internet con covaria bles") %>%  kable_styling(position = "center", latex_options = "scale_down")
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+Row<-c("Cambio español top","Cambio matemáticas top","Cambio español bottom","Cambio matemáticas bottom")
+cut<-c("9","17","3","17")
+bw<-c("37.309","35.984","38.146","41.53")
+point.nuev<-c("1.134","3.285","-3.455","-2.854")
+pval<-c("0.001","0.001","0.006","0.160")
+ci<-c("[0.335 , 1.873]","[1.248 , 5.321]","[-6.269 , -0.871]","[-7.109 , 1.509]")
+point.orig<-c("1.235","1.996","-3.914","-0.567")
+
+dataf<-data.frame(Row,cut,bw,point.nuev,pval,point.orig,ci, stringsAsFactors=TRUE)
+
+kable(dataf, booktabs=T,col.names=c("Modelo","Punto de corte", "Ancho de banda", "Estimador puntual con Covariables",
+to de corte", "Ancho de banda", "Estimador puntual con Covariables",
+                                    "Valor-p","Estimador puntual sin Covariables","IC 95% robustos"),caption = "Tabla 2. Resultados de cambio acceso a Internet con covariables") %>% 
+  kable_styling(position = "center", latex_options = "scale_down") 
+
+marg_C<-(data$marg[cambio_internet>=4.461 & cambio_internet<=8])
+marg_T<-(data$marg[cambio_internet>=9 & cambio_internet<=13.539])
+promesc_C<-(data$promesc_20[cambio_internet>=4.461 & cambio_internet<=8])
+promesc_T<-(data$promesc_20[cambio_internet>=9 & cambio_internet<=13.539])
+pocup_C<-(data$pocup_20[cambio_internet>=4.461 & cambio_internet<=8])
+pocup_T<-(data$pocup_20[cambio_internet>=9 & cambio_internet<=13.539])
+ind_C<-(data$popindig_10_real[cambio_internet>=4.461 & cambio_internet<=8])
+ind_T<-(data$popindig_10_real[cambio_internet>=9 & cambio_internet<=13.539])
+luz_C<-(data$porc_viv_luz[cambio_internet>=4.461 & cambio_internet<=8])
+luz_T<-(data$porc_viv_luz[cambio_internet>=9 & cambio_internet<=13.539])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=4.461 & cambio_internet<=8])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=9 & cambio_internet<=13.539])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+Variable<-c("Promedio escolaridad", "Poblacion ocupada", "Nivel Marginacion", "Pob. indígena", "Electricidad hogares", "Niñas edad secundaria")
+Media.C<-c("1.694","43.579","1.885","9.170","74.645","49.524")
+Media.T<-c("1.810", "43.305","1.911","12.866","75.525","49.226")
+Diferencia<-c("0.116", "-0.274","0.026","3.716","0.88","0.298")
+Valor.p<-c("0.09", "0.4883","0.154","0.00","0.088",".4623")
+dataf<-data.frame(Variable, Media.T, Media.C,Diferencia,Valor.p, stringsAsFactors=TRUE)
+kable(dataf, booktabs=T,col.names=c("Variable", "Media control", "Media Tratamiento","Diferencia","Valor-p")) %>% kable_styling(position = "center")
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE}
+
+#F- test. P-value es cero. Rechazamos que sean iguales a cero en conjunto. No la podemos utilizar
+data1<-data[which(cambio_internet<=13.53 & cambio_internet>=4.461),]
+data$t1<-as.numeric(ifelse(data$cambio_internet<9,0,1))
+attach(data)
+variables<-data.frame(marg,promesc_10,pocup_10,popindig_10_real,porc_viv_luz,t1,prop_niñas_12_14_esc)
+tabla1<-balance_regression(variables,treatment="t1")
+stargazer(as.data.frame(tabla1$F_test),type="text",summary=FALSE)
+
+{r, echo=FALSE,message=FALSE,warning=FALSE,header=FALSE, include=FALSE}
+
+# Matemáticas, top, cambio internet. 21,7.692
+
+#intervalo
+21+7.692
+21-7.692
+
+#
+marg_C<-(data$marg[cambio_internet>=13.308 & cambio_internet<=21])
+marg_T<-(data$marg[cambio_internet>=21 & cambio_internet<=28.692])
+promesc_C<-(data$promesc_20[cambio_internet>=13.308 & cambio_internet<=21])
+promesc_T<-(data$promesc_20[cambio_internet>=21 & cambio_internet<=28.692])
+pocup_C<-(data$pocup_20[cambio_internet>=13.308 & cambio_internet<=21])
+pocup_T<-(data$pocup_20[cambio_internet>=21 & cambio_internet<=28.692])
+ind_C<-(data$popindig_10_real[cambio_internet>=13.308 & cambio_internet<=21])
+ind_T<-(data$popindig_10_real[cambio_internet>=21 & cambio_internet<=28.692])
+luz_C<-(data$porc_viv_luz[cambio_internet>=13.308 & cambio_internet<=21])
+luz_T<-(data$porc_viv_luz[cambio_internet>=21 & cambio_internet<=28.692])
+ninas_C<-(data$prop_niñas_12_14_esc[cambio_internet>=13.308 & cambio_internet<=21])
+ninas_T<-(data$prop_niñas_12_14_esc[cambio_internet>=21 & cambio_internet<=28.692])
+
+#
+t.test(promesc_T,promesc_C,alternative="two.sided")
+#
+t.test(pocup_T,pocup_C,alternative="two.sided")
+# 
+t.test(marg_T,marg_C,alternative="two.sided")
+#
+t.test(ind_T,ind_C,alternative="two.sided")
+#
+t.test(luz_T,luz_C,alternative="two.sided")
+# 
+t.test(ninas_T,ninas_C,alternative="two.sided")
 
 
 
